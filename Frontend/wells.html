@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WELLPOINT — Wells</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Spectral:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/base.css">
+<style>
+  nav.topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-4) var(--space-7);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .brand { display: flex; align-items: center; gap: var(--space-2); }
+  .brand-mark { width: 24px; height: 24px; }
+  .brand-name {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    color: var(--limestone);
+  }
+
+  .nav-center { display: flex; align-items: center; gap: var(--space-5); }
+  .nav-link { font-size: 13px; color: var(--sage); padding: 6px 2px; border-bottom: 2px solid transparent; }
+  .nav-link:hover { color: var(--limestone); }
+  .nav-link.active { color: var(--limestone); border-bottom-color: var(--teal); }
+
+  .nav-right { display: flex; align-items: center; gap: var(--space-5); }
+  .nav-user { font-size: 13px; color: var(--sage); }
+  .nav-user strong { color: var(--limestone); font-weight: 500; }
+
+  .btn-ghost {
+    font-size: 13px;
+    color: var(--sage);
+    padding: 8px 14px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    transition: border-color 0.15s, color 0.15s;
+  }
+  .btn-ghost:hover { color: var(--limestone); border-color: var(--sage); }
+
+  main { max-width: 980px; margin: 0 auto; padding: var(--space-7) var(--space-6) var(--space-9); }
+
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: var(--space-6);
+    gap: var(--space-5);
+    flex-wrap: wrap;
+  }
+
+  .page-eyebrow {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--clay);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: var(--space-2);
+  }
+
+  .page-header h1 { font-size: 30px; }
+
+  .toolbar { display: flex; gap: var(--space-3); align-items: center; }
+
+  #searchInput {
+    width: 220px;
+    padding: 10px 12px;
+    background: var(--ink-raised);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    color: var(--limestone);
+    font-family: var(--font-body);
+    font-size: 13px;
+  }
+  #searchInput::placeholder { color: var(--sage-dim); }
+  #searchInput:focus { border-color: var(--teal); outline: none; }
+
+  .sort-select {
+    padding: 10px 12px;
+    background: var(--ink-raised);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    color: var(--limestone);
+    font-family: var(--font-body);
+    font-size: 13px;
+  }
+
+  .well-table {
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+  }
+
+  .well-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    padding: var(--space-4) var(--space-5);
+    border-bottom: 1px solid var(--line);
+    cursor: pointer;
+    transition: background 0.12s ease;
+  }
+  .well-row:last-child { border-bottom: none; }
+  .well-row:hover { background: var(--ink-raised); }
+  .well-row.expanded { background: var(--ink-raised); }
+
+  .well-row-main { display: flex; align-items: center; gap: var(--space-4); }
+
+  .well-dot {
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    border: 2px solid;
+    flex-shrink: 0;
+  }
+
+  .well-row-name { font-size: 15px; color: var(--limestone); font-weight: 500; }
+  .well-row-coords { font-family: var(--font-mono); font-size: 12px; color: var(--sage); margin-top: 2px; }
+
+  .well-row-chevron {
+    color: var(--sage-dim);
+    font-size: 13px;
+    transition: transform 0.2s ease;
+  }
+  .well-row.expanded .well-row-chevron { transform: rotate(180deg); color: var(--teal-bright); }
+
+  .well-details {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.25s ease;
+    background: var(--ink);
+  }
+  .well-details.open { max-height: 200px; }
+
+  .well-details-inner {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-5);
+    padding: var(--space-5);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .detail-block .detail-label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--sage-dim);
+    margin-bottom: 6px;
+  }
+  .detail-block .detail-value {
+    font-family: var(--font-mono);
+    font-size: 18px;
+    color: var(--limestone);
+  }
+
+  .empty-results {
+    text-align: center;
+    padding: var(--space-9) var(--space-5);
+    color: var(--sage-dim);
+  }
+  .empty-results .empty-icon { font-size: 26px; margin-bottom: var(--space-3); }
+  .empty-results p { font-size: 13.5px; }
+
+  .results-count {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--sage-dim);
+    margin-bottom: var(--space-4);
+  }
+
+  @media (max-width: 640px) {
+    nav.topbar { padding: var(--space-3) var(--space-5); flex-wrap: wrap; gap: var(--space-3); }
+    .nav-center { order: 3; width: 100%; justify-content: center; }
+    .page-header { flex-direction: column; align-items: flex-start; }
+    .toolbar { width: 100%; }
+    #searchInput { flex: 1; width: auto; }
+    .well-details-inner { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="topbar">
+  <div class="brand">
+    <svg class="brand-mark" viewBox="0 0 28 28" fill="none">
+      <circle cx="14" cy="14" r="12" stroke="#3D8B71" stroke-width="1.5"/>
+      <circle cx="14" cy="14" r="7" stroke="#3D8B71" stroke-width="1.5"/>
+      <circle cx="14" cy="14" r="2.5" fill="#C97D4F"/>
+    </svg>
+    <span class="brand-name">WELLPOINT</span>
+  </div>
+  <div class="nav-center">
+    <a href="home.html" class="nav-link">Home</a>
+    <a href="wells.html" class="nav-link active">Wells</a>
+    <a href="map.html" class="nav-link">Map</a>
+  </div>
+  <div class="nav-right">
+    <span class="nav-user">Signed in as <strong id="userName">—</strong></span>
+    <button class="btn-ghost" id="logoutBtn">Sign out</button>
+  </div>
+</nav>
+
+<main>
+  <div class="page-header">
+    <div>
+      <span class="page-eyebrow">Well registry</span>
+      <h1>All wells</h1>
+    </div>
+    <div class="toolbar">
+      <input type="text" id="searchInput" placeholder="Search by name…">
+      <select class="sort-select" id="sortSelect">
+        <option value="name">Sort: Name</option>
+        <option value="diameter-desc">Sort: Diameter (high–low)</option>
+        <option value="diameter-asc">Sort: Diameter (low–high)</option>
+      </select>
+    </div>
+  </div>
+
+  <p class="results-count" id="resultsCount"></p>
+  <div class="well-table" id="wellTable"></div>
+</main>
+
+<script src="js/data.js"></script>
+<script>
+  const user = AuthStore.requireAuth();
+  if (user) document.getElementById("userName").textContent = user.name;
+
+  document.getElementById("logoutBtn").addEventListener("click", () => {
+    AuthStore.logout();
+    window.location.href = "index.html";
+  });
+
+  function styleForDiameter(d) {
+    if (d < 0.3) return "#4FB892";
+    if (d <= 0.5) return "#E8B14C";
+    return "#C97D4F";
+  }
+
+  function escapeHTML(str) {
+    const div = document.createElement("div");
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  let allWells = [];
+  let expandedId = null;
+
+  function render() {
+    const query = document.getElementById("searchInput").value.trim().toLowerCase();
+    const sortBy = document.getElementById("sortSelect").value;
+
+    let wells = query
+      ? allWells.filter((w) => w.name.toLowerCase().includes(query))
+      : allWells.slice();
+
+    if (sortBy === "name") {
+      wells.sort((a, b) => a.name.localeCompare(b.name));
+    } else if (sortBy === "diameter-desc") {
+      wells.sort((a, b) => b.diameter - a.diameter);
+    } else if (sortBy === "diameter-asc") {
+      wells.sort((a, b) => a.diameter - b.diameter);
+    }
+
+    document.getElementById("resultsCount").textContent =
+      `${wells.length} well${wells.length === 1 ? "" : "s"}`;
+
+    const table = document.getElementById("wellTable");
+
+    if (!wells.length) {
+      table.innerHTML = `
+        <div class="empty-results">
+          <div class="empty-icon">○</div>
+          <p>No wells match “${escapeHTML(query)}”.</p>
+        </div>`;
+      return;
+    }
+
+    table.innerHTML = wells
+      .map((w) => {
+        const color = styleForDiameter(w.diameter);
+        const isOpen = expandedId === w.id;
+        return `
+        <div>
+          <div class="well-row ${isOpen ? "expanded" : ""}" data-id="${w.id}">
+            <div class="well-row-main">
+              <span class="well-dot" style="border-color:${color};background:${color}33"></span>
+              <div>
+                <div class="well-row-name">${escapeHTML(w.name)}</div>
+                <div class="well-row-coords">${w.lat.toFixed(4)}, ${w.lng.toFixed(4)}</div>
+              </div>
+            </div>
+            <span class="well-row-chevron">▾</span>
+          </div>
+          <div class="well-details ${isOpen ? "open" : ""}">
+            <div class="well-details-inner">
+              <div class="detail-block">
+                <div class="detail-label">Latitude</div>
+                <div class="detail-value">${w.lat.toFixed(5)}°</div>
+              </div>
+              <div class="detail-block">
+                <div class="detail-label">Longitude</div>
+                <div class="detail-value">${w.lng.toFixed(5)}°</div>
+              </div>
+              <div class="detail-block">
+                <div class="detail-label">Diameter</div>
+                <div class="detail-value">${w.diameter} m</div>
+              </div>
+            </div>
+          </div>
+        </div>`;
+      })
+      .join("");
+
+    table.querySelectorAll(".well-row").forEach((row) => {
+      row.addEventListener("click", () => {
+        const id = row.getAttribute("data-id");
+        expandedId = expandedId === id ? null : id;
+        render();
+      });
+    });
+  }
+
+  document.getElementById("searchInput").addEventListener("input", render);
+  document.getElementById("sortSelect").addEventListener("change", render);
+
+  async function init() {
+    allWells = await WellStore.list();
+    render();
+  }
+
+  init();
+</script>
+</body>
+</html>
