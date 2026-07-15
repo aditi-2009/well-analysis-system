@@ -1,0 +1,10 @@
+# Block the large dataset and model folders
+Ai-Models/data/
+Ai-Models/dataset/
+Datasets/
+Data-Preprocessing/
+
+# Block the heavy YOLO weight files
+*.pt
+*.pth
+*.h5

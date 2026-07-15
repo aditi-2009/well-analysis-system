@@ -1,0 +1,118 @@
+/* ============================================
+   WELLPOINT — Design tokens & base styles
+   ============================================ */
+
+:root {
+  /* Color */
+  --ink:        #1A2421;   /* deep ink-green background */
+  --ink-raised: #212E29;   /* slightly lighter panel on ink */
+  --limestone:  #F2EFE6;   /* light panel / card background */
+  --limestone-dim: #E8E3D5;
+  --teal:       #3D8B71;   /* primary accent — well water */
+  --teal-bright:#4FB892;
+  --clay:       #C97D4F;   /* secondary accent — terracotta */
+  --sage:       #8A9A93;   /* muted text on dark */
+  --sage-dim:   #5E6B65;
+  --amber:      #E8B14C;   /* depth / measurement highlight */
+  --line:       rgba(242, 239, 230, 0.12);
+  --line-dark:  rgba(26, 36, 33, 0.12);
+  --danger:     #C9594F;
+
+  /* Type */
+  --font-display: "Spectral", Georgia, serif;
+  --font-body: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: "JetBrains Mono", "SF Mono", Consolas, monospace;
+
+  /* Scale */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+  --space-9: 96px;
+
+  --radius-sm: 3px;
+  --radius-md: 6px;
+  --radius-lg: 10px;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+body {
+  background: var(--ink);
+  color: var(--limestone);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+p { margin: 0; }
+
+a { color: inherit; text-decoration: none; }
+
+button {
+  font-family: var(--font-body);
+  cursor: pointer;
+  border: none;
+  background: none;
+  color: inherit;
+}
+
+input {
+  font-family: var(--font-mono);
+}
+
+.mono { font-family: var(--font-mono); }
+
+/* Visible keyboard focus everywhere */
+:focus-visible {
+  outline: 2px solid var(--teal-bright);
+  outline-offset: 2px;
+}
+
+::selection {
+  background: var(--teal);
+  color: var(--limestone);
+}
+
+/* Topographic line texture — used as a background device on auth pages */
+.topo-field {
+  position: absolute;
+  inset: 0;
+  background-image:
+    repeating-radial-gradient(circle at 20% 30%, transparent 0, transparent 18px, var(--line) 19px, transparent 20px),
+    repeating-radial-gradient(circle at 80% 70%, transparent 0, transparent 26px, var(--line) 27px, transparent 28px),
+    repeating-radial-gradient(circle at 60% 15%, transparent 0, transparent 14px, var(--line) 15px, transparent 16px);
+  opacity: 0.6;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* Scrollbar — subtle, on-brand */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--sage-dim); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: var(--sage); }

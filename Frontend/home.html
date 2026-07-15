@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WELLPOINT — Home</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Spectral:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/base.css">
+<style>
+  nav.topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-4) var(--space-7);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .brand { display: flex; align-items: center; gap: var(--space-2); }
+  .brand-mark { width: 24px; height: 24px; }
+  .brand-name {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    color: var(--limestone);
+  }
+
+  .nav-center { display: flex; align-items: center; gap: var(--space-5); }
+  .nav-link { font-size: 13px; color: var(--sage); padding: 6px 2px; border-bottom: 2px solid transparent; }
+  .nav-link:hover { color: var(--limestone); }
+  .nav-link.active { color: var(--limestone); border-bottom-color: var(--teal); }
+
+  .nav-right { display: flex; align-items: center; gap: var(--space-5); }
+  .nav-user { font-size: 13px; color: var(--sage); }
+  .nav-user strong { color: var(--limestone); font-weight: 500; }
+
+  .btn-ghost {
+    font-size: 13px;
+    color: var(--sage);
+    padding: 8px 14px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    transition: border-color 0.15s, color 0.15s;
+  }
+  .btn-ghost:hover { color: var(--limestone); border-color: var(--sage); }
+
+  main { max-width: 1100px; margin: 0 auto; padding: var(--space-8) var(--space-6); }
+
+  .hero {
+    display: grid;
+    grid-template-columns: 1.3fr 1fr;
+    gap: var(--space-8);
+    align-items: center;
+    padding-bottom: var(--space-8);
+    border-bottom: 1px solid var(--line);
+    margin-bottom: var(--space-8);
+  }
+
+  .hero-eyebrow {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--clay);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: var(--space-3);
+  }
+
+  .hero h1 {
+    font-size: 40px;
+    line-height: 1.15;
+    color: var(--limestone);
+    margin-bottom: var(--space-4);
+  }
+
+  .hero p {
+    color: var(--sage);
+    font-size: 15px;
+    max-width: 44ch;
+    margin-bottom: var(--space-6);
+  }
+
+  .btn-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    background: var(--teal);
+    color: var(--ink);
+    padding: 13px 22px;
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    font-weight: 600;
+    transition: background 0.15s, transform 0.1s;
+  }
+  .btn-cta:hover { background: var(--teal-bright); }
+  .btn-cta:active { transform: scale(0.99); }
+
+  .hero-instrument {
+    position: relative;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    border: 1px solid var(--line);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .hero-instrument::before {
+    content: "";
+    position: absolute;
+    inset: 18%;
+    border-radius: 50%;
+    border: 1px solid var(--line);
+  }
+  .hero-instrument::after {
+    content: "";
+    position: absolute;
+    inset: 38%;
+    border-radius: 50%;
+    border: 1px solid var(--teal);
+  }
+  .hero-instrument .center-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: var(--amber);
+  }
+
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-5);
+    margin-bottom: var(--space-8);
+  }
+
+  .stat-card {
+    background: var(--ink-raised);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    padding: var(--space-5);
+  }
+
+  .stat-card .stat-label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--sage);
+    display: block;
+    margin-bottom: var(--space-2);
+  }
+
+  .stat-card .stat-value {
+    font-family: var(--font-mono);
+    font-size: 30px;
+    color: var(--amber);
+  }
+
+  .section-title {
+    font-size: 13px;
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--sage);
+    margin-bottom: var(--space-5);
+  }
+
+  .well-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: var(--space-4);
+  }
+
+  .well-card {
+    background: var(--ink-raised);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    padding: var(--space-4);
+    transition: border-color 0.15s;
+  }
+  .well-card:hover { border-color: var(--teal); }
+
+  .well-card .well-name {
+    font-size: 15px;
+    color: var(--limestone);
+    font-weight: 500;
+    margin-bottom: var(--space-3);
+  }
+
+  .well-card .well-meta {
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--sage);
+  }
+
+  .well-card .well-meta span:last-child { color: var(--teal-bright); }
+
+  @media (max-width: 760px) {
+    .hero { grid-template-columns: 1fr; }
+    .hero-instrument { display: none; }
+    .stats-row { grid-template-columns: 1fr; }
+    nav.topbar { padding: var(--space-4) var(--space-5); }
+  }
+</style>
+</head>
+<body>
+
+<nav class="topbar">
+  <div class="brand">
+    <svg class="brand-mark" viewBox="0 0 28 28" fill="none">
+      <circle cx="14" cy="14" r="12" stroke="#3D8B71" stroke-width="1.5"/>
+      <circle cx="14" cy="14" r="7" stroke="#3D8B71" stroke-width="1.5"/>
+      <circle cx="14" cy="14" r="2.5" fill="#C97D4F"/>
+    </svg>
+    <span class="brand-name">WELLPOINT</span>
+  </div>
+  <div class="nav-center">
+    <a href="home.html" class="nav-link active">Home</a>
+    <a href="wells.html" class="nav-link">Wells</a>
+    <a href="map.html" class="nav-link">Map</a>
+  </div>
+  <div class="nav-right">
+    <span class="nav-user">Signed in as <strong id="userName">—</strong></span>
+    <button class="btn-ghost" id="logoutBtn">Sign out</button>
+  </div>
+</nav>
+
+<main>
+  <section class="hero">
+    <div>
+      <span class="hero-eyebrow">Global well registry</span>
+      <h1>Locate, log, and review groundwater wells anywhere on Earth.</h1>
+      <p>WELLPOINT plots every recorded well by coordinate, with diameter and identification at a glance. Open the map to explore the registry.</p>
+      <a href="map.html" class="btn-cta">Open the map →</a>
+    </div>
+    <div class="hero-instrument"><div class="center-dot"></div></div>
+  </section>
+
+  <section class="stats-row">
+    <div class="stat-card">
+      <span class="stat-label">Wells logged</span>
+      <span class="stat-value mono" id="statCount">—</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-label">Avg. diameter</span>
+      <span class="stat-value mono" id="statAvgDiameter">—</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-label">Widest well</span>
+      <span class="stat-value mono" id="statMaxDiameter">—</span>
+    </div>
+  </section>
+
+  <section>
+    <p class="section-title">Recently logged</p>
+    <div class="well-list" id="wellList"></div>
+  </section>
+</main>
+
+<script src="js/data.js"></script>
+<script>
+  const user = AuthStore.requireAuth();
+  if (user) {
+    document.getElementById("userName").textContent = user.name;
+  }
+
+  document.getElementById("logoutBtn").addEventListener("click", () => {
+    AuthStore.logout();
+    window.location.href = "index.html";
+  });
+
+  async function renderDashboard() {
+    const wells = await WellStore.list();
+
+    document.getElementById("statCount").textContent = wells.length;
+
+    if (wells.length) {
+      const diameters = wells.map((w) => w.diameter);
+      const avg = diameters.reduce((a, b) => a + b, 0) / diameters.length;
+      const max = Math.max(...diameters);
+      document.getElementById("statAvgDiameter").textContent = avg.toFixed(2) + " m";
+      document.getElementById("statMaxDiameter").textContent = max.toFixed(2) + " m";
+    } else {
+      document.getElementById("statAvgDiameter").textContent = "—";
+      document.getElementById("statMaxDiameter").textContent = "—";
+    }
+
+    const list = document.getElementById("wellList");
+    list.innerHTML = wells
+      .slice(-6)
+      .reverse()
+      .map(
+        (w) => `
+        <a href="map.html?well=${w.id}" class="well-card">
+          <div class="well-name">${escapeHTML(w.name)}</div>
+          <div class="well-meta">
+            <span>${w.lat.toFixed(2)}, ${w.lng.toFixed(2)}</span>
+            <span>⌀ ${w.diameter} m</span>
+          </div>
+        </a>`
+      )
+      .join("");
+  }
+
+  function escapeHTML(str) {
+    const div = document.createElement("div");
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  renderDashboard();
+</script>
+</body>
+</html>
