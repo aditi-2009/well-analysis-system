@@ -1,10 +1,56 @@
-# Block the large dataset and model folders
+# Python cache
+__pycache__/
+*.py[codz]
+*$py.class
+
+# Virtual environments
+.env
+.venv/
+venv/
+env/
+ENV/
+
+# Build files
+build/
+dist/
+*.egg-info/
+
+# Logs and databases
+*.log
+db.sqlite3
+db.sqlite3-journal
+
+# Jupyter
+.ipynb_checkpoints/
+
+# IDE files
+.vscode/
+.idea/
+tempCodeRunnerFile.py
+
+# Testing cache
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Project datasets (large files)
 Ai-Models/data/
 Ai-Models/dataset/
 Datasets/
 Data-Preprocessing/
+Ai-Models/tiles/
+Ai-Models/runs/
 
-# Block the heavy YOLO weight files
+# Large model files
 *.pt
 *.pth
 *.h5
+*.onnx
+
+# Large imagery files
+*.ecw
+*.tif
+*.tiff
+*.zip
