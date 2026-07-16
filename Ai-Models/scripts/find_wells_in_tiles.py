@@ -4,10 +4,12 @@ import rasterio
 from shapely.geometry import box
 
 # Load shapefile
-wells = gpd.read_file("data/shapefiles/Wardha_Arvi_Deoli_Well.shp")
+wells = gpd.read_file(
+    r"D:\ICAR dataset\well-analysis-system\Ai-Models\data\shapefiles\Wardha_Arvi_Deoli_Well.shp"
+)
 
 # Folder containing image tiles
-tile_folder = "tiles/images"
+tile_folder = r"D:\ICAR dataset\well-analysis-system\Ai-Models\tiles\images"
 
 # Loop through all tiles
 for tile_name in os.listdir(tile_folder):
