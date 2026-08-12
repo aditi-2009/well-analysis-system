@@ -1,5 +1,7 @@
-def fetch_satellite_image(area_name: str):
+def get_location_details(latitude, longitude):
     
     return {
-        "message": f"Fetching imagery for {area_name}"
+        "village": "Demo Village",
+        "taluka": "Demo Taluka",
+        "district": "Nagpur"
     }
