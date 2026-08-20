@@ -15,8 +15,7 @@ currently active?"
 WHO IMPORTS THIS FILE
 ------------------------
 - api/v1/endpoints/models.py (future) — GET /models returns this
-- services/detection_service.py (future) — records which model_id was
-  used for each prediction
+- services/detection_service.py (future) — records which model_id was used for each prediction
 - Indirectly: any analytics that groups predictions by model
 
 WHAT THIS FILE IMPORTS
