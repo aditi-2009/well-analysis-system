@@ -25,17 +25,17 @@ function Navbar({ onMenuClick }) {
 
   const handleLogout = () => {
     logout();
-    navigate("/login");
+    navigate("/");
   };
 
   const goToProfile = () => {
     setIsProfileMenuOpen(false);
-    navigate("/profile");
+    navigate("/app/profile");
   };
 
   const goToSettings = () => {
     setIsProfileMenuOpen(false);
-    navigate("/settings");
+    navigate("/app/settings");
   };
 
   return (

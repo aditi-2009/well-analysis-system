@@ -45,7 +45,7 @@ function Login() {
     try {
       const user = await loginUser(formData);
       login(user); // saves to AuthContext + localStorage
-      navigate("/dashboard");
+      navigate("/app/dashboard");
     } catch (err) {
       // Friendly message only — never expose raw backend errors
       setServerError(err.message || "Login failed. Please try again.");
@@ -58,7 +58,9 @@ function Login() {
     <div className="auth-page">
       <div className="auth-card">
         <div className="auth-header">
-          <h2>{ORG_NAME}</h2>
+          <Link to="/" style={{ textDecoration: "none" }}>
+            <h2>{ORG_NAME}</h2>
+          </Link>
           <p>{APP_NAME}</p>
         </div>
 
@@ -124,10 +126,6 @@ function Login() {
 
         <p className="auth-switch-text">
           Don't have an account? <Link to="/register">Register</Link>
-        </p>
-
-        <p className="auth-hint">
-          Demo credentials: <strong>demo@nbsslup.gov.in</strong> / <strong>Demo@123</strong>
         </p>
       </div>
     </div>

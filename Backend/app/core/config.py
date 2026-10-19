@@ -45,8 +45,10 @@ HOW IT CONNECTS TO THE WHOLE BACKEND
 
 from functools import lru_cache
 from pathlib import Path
+from typing import Literal
 
-from pydantic import Field, field_validator
+# from pydantic import Field
+from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -66,7 +68,7 @@ class Settings(BaseSettings):
 
     # ---------------- Application identity ----------------
     APP_NAME: str = "ICAR Agricultural Intelligence Backend"
-    ENV: str = "development"          # development | staging | production
+    ENV: str = "development"  # development | staging | production
     DEBUG: bool = True
     API_V1_PREFIX: str = "/api/v1"
 
@@ -75,34 +77,51 @@ class Settings(BaseSettings):
 
     @property
     def cors_origins(self) -> list[str]:
-        return [o.strip() for o in self.ALLOWED_ORIGINS.split(",") if o.strip()]
+        return [o.strip() for o in self.ALLOWED_ORIGINS.split(",")
+                if o.strip()]
 
     # ---------------- Database (PostgreSQL + PostGIS) ----------------
     # Local default provided so Phase 1 (no DB yet) isn't blocked on it.
-    DATABASE_URL: str = "postgresql://postgres:postgres@localhost:5432/agri_intel"
-
+    DATABASE_URL: str
     # ---------------- Authentication (JWT) ----------------
     # No default on the secret — it MUST be supplied via .env.
-    JWT_SECRET_KEY: str = Field(..., description="Required. Set in .env only, never hardcode.")
+    JWT_SECRET_KEY: str
     JWT_ALGORITHM: str = "HS256"
     JWT_ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
-
+    JWT_EXPIRATION_HOURS: int = 24
     # ---------------- Storage paths ----------------
     UPLOAD_DIR: Path = Path("storage/uploads")
     RESULTS_DIR: Path = Path("storage/results")
-    MAX_UPLOAD_SIZE_MB: int = 500
-    ALLOWED_UPLOAD_EXTENSIONS: str = ".tif,.tiff,.geotiff"
+    MAX_UPLOAD_SIZE_MB: int = 10240
+    ALLOWED_UPLOAD_EXTENSIONS: str = (
+        ".tif,.tiff,.geotiff,.jp2,.img,.jpg,.jpeg,.png,.ecw,.vrt"
+    )
 
     @property
     def allowed_upload_extensions_list(self) -> list[str]:
-        return [e.strip().lower() for e in self.ALLOWED_UPLOAD_EXTENSIONS.split(",") if e.strip()]
+        return [
+            e.strip().lower()
+            for e in self.ALLOWED_UPLOAD_EXTENSIONS.split(",")
+            if e.strip()
+        ]
 
     # ---------------- AI-Models bridge ----------------
     # The ONLY thing the backend knows about the AI engine: where it
     # lives, and which logical task to request. No model name (YOLO,
     # Faster R-CNN) appears anywhere here — that's the whole point.
-    AI_MODELS_PATH: Path = Path("../Ai-Models")
+    MODEL_WEIGHTS_PATH: Path = Path(
+        "Model-Training/runs/detect/runs/train/weights/best.pt"
+        )
+    AI_CONFIDENCE_THRESHOLD: float = 0.25
     AI_DETECTION_TASK: str = "well_detection"
+
+    # ---------------- Detection: tiled image processing ----------------
+    # Confirm these values against the model's training and inference code
+    # before relying on them for production detection.
+    DETECTION_TILE_SIZE: int = 640
+    DETECTION_OVERLAP: int = 64
+    DETECTION_NORMALIZE: Literal["none", "stretch"] = "none"
+    DETECTION_NMS_IOU: float = 0.3
 
     # ---------------- Google Earth Engine ----------------
     # Path to credentials, never the credentials themselves.

@@ -1,0 +1,397 @@
+/* src/styles/shell.css
+   Classes the shared components need that design.css does not have.
+   Every class starts with ds-, so the header, footer and public pages keep their look. */
+
+@keyframes ds-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Loading and busy states. The spinner takes the colour of the text beside it. */
+.ds-spinner {
+  display: inline-block;
+  flex: none;
+  width: 16px;
+  height: 16px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: ds-spin 0.8s linear infinite;
+}
+
+.ds-spinner-lg {
+  width: 22px;
+  height: 22px;
+  border-width: 2.5px;
+  color: var(--ds-green-700);
+}
+
+.ds-loading-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14.5px;
+  color: var(--ds-text);
+}
+
+.ds-body-text {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--ds-text);
+}
+
+/* Icon-only buttons, such as the close button of a dialog */
+.ds-icon-btn {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 36px;
+  height: 36px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--ds-muted);
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.ds-icon-btn:hover {
+  background: var(--ds-hover);
+  color: var(--ds-green-900);
+}
+
+.ds-icon-btn:focus-visible {
+  outline: none;
+  box-shadow: var(--ds-focus);
+}
+
+/* The close button of a toast */
+.ds-toast-close {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 28px;
+  height: 28px;
+  margin: -3px -6px 0 0;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--ds-muted);
+  cursor: pointer;
+}
+
+.ds-toast-close:hover {
+  background: var(--ds-hover);
+  color: var(--ds-ink);
+}
+
+.ds-toast-close:focus-visible {
+  outline: none;
+  box-shadow: var(--ds-focus);
+}
+
+/* Alerts: a title line, and an optional action below the text */
+.ds-alert-title {
+  display: block;
+  margin-bottom: 2px;
+  font-weight: 600;
+}
+
+.ds-alert-action {
+  margin-top: 10px;
+}
+
+/* Recovery screen, shown when a page cannot be drawn */
+.ds-error-screen {
+  min-height: 60vh;
+  display: grid;
+  place-items: center;
+  padding: 32px 16px;
+}
+
+.ds-error-screen-card {
+  width: min(520px, 100%);
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  padding: 34px 28px;
+  background: #fff;
+  border: 1px solid var(--ds-line);
+  border-radius: 16px;
+  text-align: center;
+}
+
+.ds-error-screen-card .ds-page-actions {
+  justify-content: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ds-spinner {
+    animation-duration: 2.4s;
+  }
+}
+/* ===== Map note: a small badge, never a veil over the map ===== */
+.ds-map-note {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 500;
+  max-width: calc(100% - 24px);
+  padding: 8px 14px;
+  background: #ffffff;
+  border: 1px solid var(--ds-line);
+  border-radius: 999px;
+  box-shadow: 0 4px 14px rgba(17, 24, 39, 0.15);
+  font-size: 13.5px;
+  color: var(--ds-text);
+  text-align: center;
+  pointer-events: none;
+}
+
+/* ===== App sidebar: dark green, as in the design ===== */
+.app-layout .sidebar {
+  background: var(--primary-dark);
+  border-right: 0;
+}
+.app-layout .sidebar-link {
+  color: #e6efe6;
+}
+.app-layout .sidebar-link:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+.app-layout .sidebar-link-active {
+  background: rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+  font-weight: 600;
+}
+.app-layout .sidebar-header {
+  border-bottom-color: rgba(255, 255, 255, 0.15);
+}
+.app-layout .sidebar-title,
+.app-layout .sidebar-close-btn {
+  color: #ffffff;
+}
+
+/* ===== Phones ===== */
+@media (max-width: 640px) {
+  .app-layout .main-content {
+    padding: 14px 12px;
+  }
+  .ds-page-actions {
+    width: 100%;
+  }
+  .ds-page-actions .ds-btn {
+    flex: 1 1 auto;
+  }
+  .ds-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+  .ds-stat {
+    padding: 14px 12px 12px 16px;
+  }
+  .ds-stat-value {
+    font-size: 22px;
+    overflow-wrap: anywhere;
+  }
+  .ds-toolbar > * {
+    flex: 1 1 100%;
+  }
+  .ds-setting-control,
+  .ds-setting-control .ds-select {
+    width: 100%;
+  }
+  .ds-kv-rows > div {
+    flex-direction: column;
+    gap: 2px;
+  }
+  .ds-legend {
+    left: 8px;
+    bottom: 8px;
+    min-width: 0;
+    padding: 8px 10px;
+    font-size: 12px;
+  }
+  .ds-savebar {
+    bottom: 8px;
+  }
+}
+
+/* ===== Map note: a small badge, never a veil over the map ===== */
+.ds-map-note {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 500;
+  max-width: calc(100% - 24px);
+  padding: 8px 14px;
+  background: #ffffff;
+  border: 1px solid var(--ds-line);
+  border-radius: 999px;
+  box-shadow: 0 4px 14px rgba(17, 24, 39, 0.15);
+  font-size: 13.5px;
+  color: var(--ds-text);
+  text-align: center;
+  pointer-events: none;
+}
+
+/* ===== App sidebar: dark green, as in the design ===== */
+.app-layout .sidebar {
+  background: var(--primary-dark);
+  border-right: 0;
+}
+.app-layout .sidebar-link {
+  color: #e6efe6;
+}
+.app-layout .sidebar-link:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+.app-layout .sidebar-link-active {
+  background: rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+  font-weight: 600;
+}
+.app-layout .sidebar-header {
+  border-bottom-color: rgba(255, 255, 255, 0.15);
+}
+.app-layout .sidebar-title,
+.app-layout .sidebar-close-btn {
+  color: #ffffff;
+}
+
+/* ===== Phones ===== */
+@media (max-width: 640px) {
+  .app-layout .main-content {
+    padding: 14px 12px;
+  }
+  .ds-page-actions {
+    width: 100%;
+  }
+  .ds-page-actions .ds-btn {
+    flex: 1 1 auto;
+  }
+  .ds-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+  .ds-stat {
+    padding: 14px 12px 12px 16px;
+  }
+  .ds-stat-value {
+    font-size: 22px;
+    overflow-wrap: anywhere;
+  }
+  .ds-toolbar > * {
+    flex: 1 1 100%;
+  }
+  .ds-setting-control,
+  .ds-setting-control .ds-select {
+    width: 100%;
+  }
+  .ds-kv-rows > div {
+    flex-direction: column;
+    gap: 2px;
+  }
+  .ds-legend {
+    left: 8px;
+    bottom: 8px;
+    min-width: 0;
+    padding: 8px 10px;
+    font-size: 12px;
+  }
+  .ds-savebar {
+    bottom: 8px;
+  }
+}
+
+/* ===== Map note: a small badge, never a veil over the map ===== */
+.ds-map-note {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 500;
+  max-width: calc(100% - 24px);
+  padding: 8px 14px;
+  background: #ffffff;
+  border: 1px solid var(--ds-line);
+  border-radius: 999px;
+  box-shadow: 0 4px 14px rgba(17, 24, 39, 0.15);
+  font-size: 13.5px;
+  color: var(--ds-text);
+  text-align: center;
+  pointer-events: none;
+}
+
+/* ===== App sidebar: dark green, as in the design ===== */
+.app-layout .sidebar {
+  background: var(--primary-dark);
+  border-right: 0;
+}
+.app-layout .sidebar-link {
+  color: #e6efe6;
+}
+.app-layout .sidebar-link:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+.app-layout .sidebar-link-active {
+  background: rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+  font-weight: 600;
+}
+.app-layout .sidebar-header {
+  border-bottom-color: rgba(255, 255, 255, 0.15);
+}
+.app-layout .sidebar-title,
+.app-layout .sidebar-close-btn {
+  color: #ffffff;
+}
+
+/* ===== Phones ===== */
+@media (max-width: 640px) {
+  .app-layout .main-content {
+    padding: 14px 12px;
+  }
+  .ds-page-actions {
+    width: 100%;
+  }
+  .ds-page-actions .ds-btn {
+    flex: 1 1 auto;
+  }
+  .ds-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+  .ds-stat {
+    padding: 14px 12px 12px 16px;
+  }
+  .ds-stat-value {
+    font-size: 22px;
+    overflow-wrap: anywhere;
+  }
+  .ds-toolbar > * {
+    flex: 1 1 100%;
+  }
+  .ds-setting-control,
+  .ds-setting-control .ds-select {
+    width: 100%;
+  }
+  .ds-kv-rows > div {
+    flex-direction: column;
+    gap: 2px;
+  }
+  .ds-legend {
+    left: 8px;
+    bottom: 8px;
+    min-width: 0;
+    padding: 8px 10px;
+    font-size: 12px;
+  }
+  .ds-savebar {
+    bottom: 8px;
+  }
+}

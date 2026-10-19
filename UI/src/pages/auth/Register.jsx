@@ -46,7 +46,7 @@ function Register() {
     if (!formData.organization.trim()) newErrors.organization = "Organization/Department is required.";
 
     if (!formData.password) newErrors.password = "Password is required.";
-    else if (!isStrongPassword(formData.password)) newErrors.password = "Password must be at least 6 characters.";
+    else if (!isStrongPassword(formData.password)) newErrors.password = "Password must be at least 8 characters.";
 
     if (formData.confirmPassword !== formData.password) {
       newErrors.confirmPassword = "Passwords do not match.";
@@ -81,7 +81,9 @@ function Register() {
     <div className="auth-page">
       <div className="auth-card">
         <div className="auth-header">
-          <h2>{ORG_NAME}</h2>
+          <Link to="/" style={{ textDecoration: "none" }}>
+            <h2>{ORG_NAME}</h2>
+          </Link>
           <p>{APP_NAME}</p>
         </div>
 
@@ -152,7 +154,7 @@ function Register() {
                 type={showPassword ? "text" : "password"}
                 value={formData.password}
                 onChange={handleChange}
-                placeholder="At least 6 characters"
+                placeholder="At least 8 characters"
               />
               <button
                 type="button"

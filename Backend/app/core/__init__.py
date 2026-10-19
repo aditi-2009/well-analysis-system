@@ -18,22 +18,24 @@ Only its own sibling modules (config, exceptions). Nothing external.
 
 from app.core.config import Settings, get_settings
 from app.core.exceptions import (
-    AIInferenceException,
     AppException,
+    ValidationException,
+    FileValidationException,
+    ImageProcessingException,
+    AIInferenceException,
+    GISProcessingException,
+    SpatialValidationException,
+    ResourceNotFoundException,
+    DatabaseException,
     AuthenticationException,
     AuthorizationException,
-    DatabaseException,
-    FileValidationException,
-    GISProcessingException,
-    ImageProcessingException,
-    ResourceNotFoundException,
-    SpatialValidationException,
-    ValidationException,
 )
+from app.core.logging_config import setup_logging
 
 __all__ = [
     "Settings",
     "get_settings",
+    "setup_logging",
     "AppException",
     "ValidationException",
     "FileValidationException",

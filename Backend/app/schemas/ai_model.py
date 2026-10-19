@@ -52,7 +52,9 @@ class AIModelResponse(OrmBaseModel):
             "For informational purposes — backend never branches on this."
         )
     )
-    framework: str = Field(description="Framework/library, e.g., 'PyTorch', 'TensorFlow'.")
+    framework: str = Field(
+        description="Framework/library, e.g., 'PyTorch', 'TensorFlow'."
+    )
     task: str = Field(
         description=(
             "Logical task this model handles, e.g., 'well_detection'. "

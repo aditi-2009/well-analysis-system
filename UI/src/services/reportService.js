@@ -1,40 +1,26 @@
 // src/services/reportService.js
-import mockWells from "../data/mockWells";
+import { getAllWells } from "./wellService";
 import { CONFIDENCE_LEVELS } from "../utils/constants";
 
-const MOCK_DELAY = 500;
-function delay(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-/**
- * Fetch data needed for the Reports page summary.
- * Later replace with:
- *   const res = await api.get("/reports/summary");
- *   return res.data.data;
- */
+// Summary numbers for the Reports page, computed from the real wells.
 export async function getReportSummary() {
-  await delay(MOCK_DELAY);
+  const wells = await getAllWells();
 
-  const totalWells = mockWells.length;
-  const high = mockWells.filter((w) => w.confidence >= CONFIDENCE_LEVELS.HIGH).length;
-  const medium = mockWells.filter(
+  const high = wells.filter((w) => w.confidence >= CONFIDENCE_LEVELS.HIGH).length;
+  const medium = wells.filter(
     (w) => w.confidence >= CONFIDENCE_LEVELS.MEDIUM && w.confidence < CONFIDENCE_LEVELS.HIGH
   ).length;
-  const low = mockWells.filter((w) => w.confidence < CONFIDENCE_LEVELS.MEDIUM).length;
+  const low = wells.length - high - medium;
 
-  const districts = [...new Set(mockWells.map((w) => w.district))];
-  const latestDetectionDate = mockWells
-    .map((w) => w.detectedOn)
-    .sort()
-    .reverse()[0];
+  const districts = [...new Set(wells.map((w) => w.district))];
+  const latest = wells.map((w) => w.detectedOn).filter(Boolean).sort().reverse()[0];
 
   return {
-    totalWells,
+    totalWells: wells.length,
     highConfidence: high,
     mediumConfidence: medium,
     lowConfidence: low,
-    areasCovered: districts.join(", "),
-    latestDetectionDate,
+    areasCovered: districts.join(", ") || "—",
+    latestDetectionDate: latest || "—",
   };
 }

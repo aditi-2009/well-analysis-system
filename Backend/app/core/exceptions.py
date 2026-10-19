@@ -148,12 +148,18 @@ class AuthenticationException(AppException):
     """Credentials missing, invalid, or expired — the user is not who
     they claim to be."""
 
-    def __init__(self, message: str = "Authentication required.", detail: Any = None) -> None:
+    def __init__(
+        self, message: str = "Authentication required.", detail: Any = None
+    ) -> None:
         super().__init__(message, "AUTHENTICATION_ERROR", 401, detail)
 
 
 class AuthorizationException(AppException):
     """User is authenticated but lacks permission (RBAC failure)."""
 
-    def __init__(self, message: str = "You do not have permission to perform this action.", detail: Any = None) -> None:
+    def __init__(
+        self,
+        message: str = "You do not have permission to perform this action.",
+        detail: Any = None,
+    ) -> None:
         super().__init__(message, "AUTHORIZATION_ERROR", 403, detail)

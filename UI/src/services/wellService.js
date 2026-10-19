@@ -1,86 +1,68 @@
 // src/services/wellService.js
-import mockWells from "../data/mockWells";
+import api from "./api";
+import { mapWell } from "../utils/wellMapper";
 import { CONFIDENCE_LEVELS } from "../utils/constants";
 
-const MOCK_DELAY = 500;
-
-function delay(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-/**
- * Fetch all detected wells.
- * Later replace with:
- *   const res = await api.get("/wells");
- *   return res.data.data;
- */
+// AI-detected wells from completed detection jobs.
 export async function getAllWells() {
-  await delay(MOCK_DELAY);
-  return mockWells;
+  const res = await api.get("/wells", { params: { limit: 5000 } });
+  return res.data.map(mapWell);
 }
 
-/**
- * Fetch summary stats for the dashboard.
- * Later this may become its own backend endpoint (e.g. GET /wells/summary)
- * instead of being computed on the frontend.
- */
+// Officer-verified wells (ground truth), GeoJSON from GET /known-wells.
+export async function getKnownWells() {
+  const res = await api.get("/known-wells", { params: { limit: 5000 } });
+  return res.data.features.map((f) => ({
+    id: `known-${f.properties.id}`,
+    latitude: f.geometry.coordinates[1], // GeoJSON order is [longitude, latitude]
+    longitude: f.geometry.coordinates[0],
+    confidence: 1, // verified by a surveyor = 100%
+    status: "Verified",
+    village: f.properties.village ?? "Unknown",
+    taluka: f.properties.taluka ?? "Unknown",
+    district: f.properties.district ?? "Unknown",
+    detectedOn: "",
+  }));
+}
+
+function level(c) {
+  if (c >= CONFIDENCE_LEVELS.HIGH) return "high";
+  if (c >= CONFIDENCE_LEVELS.MEDIUM) return "medium";
+  return "low";
+}
+
 export async function getDashboardStats() {
-  await delay(MOCK_DELAY);
-
-  const totalWells = mockWells.length;
-  const uniqueVillages = new Set(mockWells.map((w) => w.village)).size;
-  const avgConfidence =
-    mockWells.reduce((sum, w) => sum + w.confidence, 0) / totalWells;
-
+  const wells = await getAllWells();
+  const total = wells.length;
+  const avg = total ? wells.reduce((s, w) => s + w.confidence, 0) / total : 0;
+  const first = wells[0]?.district;
   return {
-    totalWells,
-    selectedArea: "Nagpur District",
-    detectionAccuracy: `${Math.round(avgConfidence * 100)}%`,
-    processedImages: 24, // mock static value for now
-    villagesCovered: uniqueVillages,
+    totalWells: total,
+    selectedArea: first && first !== "Unknown" ? `${first} District` : "—",
+    // This is average model confidence, not accuracy. Accuracy needs labelled test data.
+    detectionAccuracy: total ? `${Math.round(avg * 100)}%` : "—",
+    processedImages: 0, // needs a backend count of uploaded images (later)
+    villagesCovered: new Set(wells.map((w) => w.village)).size,
   };
 }
 
-/**
- * Wells grouped by village/area, including average confidence per area —
- * used for the bar chart (bar color reflects avgConfidence).
- */
-/**
- * Wells grouped by village/area, broken down by confidence level (High/Medium/Low)
- * — used for the stacked bar chart, using the same color scheme as the pie chart.
- */
 export async function getWellsByArea() {
-  await delay(MOCK_DELAY);
-
+  const wells = await getAllWells();
   const grouped = {};
-  mockWells.forEach((well) => {
-    if (!grouped[well.village]) {
-      grouped[well.village] = { area: well.village, high: 0, medium: 0, low: 0 };
-    }
-    if (well.confidence >= CONFIDENCE_LEVELS.HIGH) grouped[well.village].high += 1;
-    else if (well.confidence >= CONFIDENCE_LEVELS.MEDIUM) grouped[well.village].medium += 1;
-    else grouped[well.village].low += 1;
+  wells.forEach((w) => {
+    grouped[w.village] ??= { area: w.village, high: 0, medium: 0, low: 0 };
+    grouped[w.village][level(w.confidence)] += 1;
   });
-
   return Object.values(grouped);
 }
 
-/**
- * Wells grouped by confidence level (High/Medium/Low) — used for the pie chart.
- */
 export async function getConfidenceBreakdown() {
-  await delay(MOCK_DELAY);
-
-  let high = 0, medium = 0, low = 0;
-  mockWells.forEach((w) => {
-    if (w.confidence >= CONFIDENCE_LEVELS.HIGH) high++;
-    else if (w.confidence >= CONFIDENCE_LEVELS.MEDIUM) medium++;
-    else low++;
-  });
-
+  const wells = await getAllWells();
+  const c = { high: 0, medium: 0, low: 0 };
+  wells.forEach((w) => (c[level(w.confidence)] += 1));
   return [
-    { name: "High Confidence", value: high },
-    { name: "Medium Confidence", value: medium },
-    { name: "Low Confidence", value: low },
+    { name: "High Confidence", value: c.high },
+    { name: "Medium Confidence", value: c.medium },
+    { name: "Low Confidence", value: c.low },
   ];
 }

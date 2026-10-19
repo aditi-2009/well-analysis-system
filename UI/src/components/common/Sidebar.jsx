@@ -12,13 +12,13 @@ import {
 } from "lucide-react";
 
 const NAV_ITEMS = [
-  { label: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
-  { label: "Well Detection", path: "/detection", icon: Search },
-  { label: "Map", path: "/map", icon: Map },
-  { label: "Results", path: "/results", icon: ListChecks },
-  { label: "Reports", path: "/reports", icon: FileText },
-  { label: "Profile", path: "/profile", icon: User },
-  { label: "Settings", path: "/settings", icon: SettingsIcon },
+  { label: "Dashboard", path: "/app/dashboard", icon: LayoutDashboard },
+  { label: "Well Detection", path: "/app/detection", icon: Search },
+  { label: "Map", path: "/app/map", icon: Map },
+  { label: "Results", path: "/app/results", icon: ListChecks },
+  { label: "Reports", path: "/app/reports", icon: FileText },
+  { label: "Profile", path: "/app/profile", icon: User },
+  { label: "Settings", path: "/app/settings", icon: SettingsIcon },
 ];
 
 function Sidebar({ isMobileOpen, isDesktopVisible, onMobileClose }) {

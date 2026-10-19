@@ -1,195 +1,173 @@
-// src/pages/Settings.jsx
+﻿// src/pages/Settings.jsx
+// Preferences are saved in this browser (settingsStore). Rows marked "Coming soon" are
+// disabled until the feature behind them exists.
 import { useState } from "react";
-import { Save, RotateCcw } from "lucide-react";
+import { Bell, Map as MapIcon, Palette, RotateCcw, Save } from "lucide-react";
+import { DEFAULT_SETTINGS, loadSettings, saveSettings } from "../utils/settingsStore";
+import { useDocumentTitle } from "../hooks/useDocumentTitle";
+import { useToast } from "../context/ToastContext";
+import PageHeader from "../components/common/PageHeader";
+import Button from "../components/common/Button";
 
-const DEFAULT_SETTINGS = {
-  mapLayer: "OpenStreetMap",
-  theme: "Light",
-  language: "English",
-  defaultDistrict: "Nagpur",
-  resultsPerPage: "10",
-  emailNotifications: true,
-  autoRefreshDashboard: false,
-  soundAlerts: false,
-};
+const MAP_LAYERS = ["OpenStreetMap", "Satellite", "Terrain"];
+const PAGE_SIZES = ["10", "25", "50", "100"];
+
+function Row({ title, description, soon = false, children }) {
+  return (
+    <div className="ds-setting">
+      <div>
+        <p className="ds-setting-title">
+          {title}
+          {soon && <span className="ds-soon">Coming soon</span>}
+        </p>
+        <p className="ds-setting-desc">{description}</p>
+      </div>
+      <div className="ds-setting-control">{children}</div>
+    </div>
+  );
+}
+
+function Switch({ checked, onChange, label, disabled = false }) {
+  return (
+    <label className={`ds-switch ${disabled ? "is-disabled" : ""}`}>
+      <input
+        type="checkbox"
+        checked={checked}
+        disabled={disabled}
+        aria-label={label}
+        onChange={(event) => onChange(event.target.checked)}
+      />
+      <span className="ds-switch-track" />
+    </label>
+  );
+}
+
+function Section({ icon: Icon, title, description, children }) {
+  return (
+    <section className="ds-card">
+      <div className="ds-card-head">
+        <div className="ds-card-head-main">
+          <span className="ds-section-icon" aria-hidden="true">
+            <Icon size={18} />
+          </span>
+          <div>
+            <h2 className="ds-card-title">{title}</h2>
+            <p className="ds-card-sub">{description}</p>
+          </div>
+        </div>
+      </div>
+      {children}
+    </section>
+  );
+}
 
 function Settings() {
-  const [settings, setSettings] = useState(DEFAULT_SETTINGS);
-  const [saveMessage, setSaveMessage] = useState("");
+  useDocumentTitle("Settings");
+  const toast = useToast();
 
-  const updateSetting = (key, value) => {
-    setSettings((prev) => ({ ...prev, [key]: value }));
-  };
+  const [saved, setSaved] = useState(() => loadSettings());
+  const [draft, setDraft] = useState(() => loadSettings());
+  const dirty = JSON.stringify(draft) !== JSON.stringify(saved);
 
-  const handleSave = () => {
-    // Mock save — later this becomes: await api.put("/settings", settings)
-    setSaveMessage("Preferences saved successfully.");
-    setTimeout(() => setSaveMessage(""), 3000);
-  };
+  const update = (key, value) => setDraft((prev) => ({ ...prev, [key]: value }));
 
-  const handleReset = () => {
-    setSettings(DEFAULT_SETTINGS);
-    setSaveMessage("Preferences reset to default.");
-    setTimeout(() => setSaveMessage(""), 3000);
+  const persist = (next, message) => {
+    try {
+      saveSettings(next);
+      setSaved(next);
+      setDraft(next);
+      toast.success(message);
+    } catch {
+      toast.error("Could not save preferences in this browser.");
+    }
   };
 
   return (
-    <div className="settings-page">
-      <h2 className="page-heading">Settings</h2>
-      <p className="page-subheading">Application preferences</p>
+    <div className="ds-page">
+      <PageHeader title="Settings" description="Preferences for this computer" />
 
-      {saveMessage && <div className="action-message-banner">{saveMessage}</div>}
+      <div className="ds-stack" style={{ maxWidth: 820 }}>
+        <Section icon={MapIcon} title="Map and tables" description="How maps and result tables open.">
+          <Row title="Default map layer" description="The layer a map shows when it opens.">
+            <select
+              className="ds-select ds-select-compact"
+              aria-label="Default map layer"
+              value={draft.mapLayer}
+              onChange={(event) => update("mapLayer", event.target.value)}
+            >
+              {MAP_LAYERS.map((layer) => (
+                <option key={layer} value={layer}>
+                  {layer}
+                </option>
+              ))}
+            </select>
+          </Row>
+          <Row title="Results per page" description="Rows shown per page in well tables.">
+            <select
+              className="ds-select ds-select-compact"
+              aria-label="Results per page"
+              value={String(draft.resultsPerPage)}
+              onChange={(event) => update("resultsPerPage", event.target.value)}
+            >
+              {PAGE_SIZES.map((size) => (
+                <option key={size} value={size}>
+                  {size}
+                </option>
+              ))}
+            </select>
+          </Row>
+        </Section>
 
-      <div className="settings-card">
-        <h3 className="section-title">Map & Detection</h3>
+        <Section icon={Palette} title="Appearance and language" description="How the application looks and reads.">
+          <Row title="Theme" description="Colour theme of the application." soon>
+            <select className="ds-select ds-select-compact" aria-label="Theme" value="Light" disabled>
+              <option value="Light">Light</option>
+            </select>
+          </Row>
+          <Row title="Language" description="Interface language." soon>
+            <select className="ds-select ds-select-compact" aria-label="Language" value="English" disabled>
+              <option value="English">English</option>
+            </select>
+          </Row>
+        </Section>
 
-        <div className="settings-row">
-          <div>
-            <p className="detail-value">Default Map Layer</p>
-            <p className="detail-label">Layer shown by default when opening the map</p>
-          </div>
-          <select
-            className="table-filter-select"
-            value={settings.mapLayer}
-            onChange={(e) => updateSetting("mapLayer", e.target.value)}
-          >
-            <option value="OpenStreetMap">OpenStreetMap</option>
-            <option value="Satellite">Satellite</option>
-          </select>
-        </div>
-
-        <div className="settings-row">
-          <div>
-            <p className="detail-value">Default District</p>
-            <p className="detail-label">Pre-filled district when starting a new detection</p>
-          </div>
-          <select
-            className="table-filter-select"
-            value={settings.defaultDistrict}
-            onChange={(e) => updateSetting("defaultDistrict", e.target.value)}
-          >
-            <option value="Nagpur">Nagpur</option>
-            <option value="Wardha">Wardha</option>
-            <option value="Chandrapur">Chandrapur</option>
-            <option value="Amravati">Amravati</option>
-          </select>
-        </div>
-
-        <div className="settings-row">
-          <div>
-            <p className="detail-value">Results Per Page</p>
-            <p className="detail-label">Number of wells shown per page in tables</p>
-          </div>
-          <select
-            className="table-filter-select"
-            value={settings.resultsPerPage}
-            onChange={(e) => updateSetting("resultsPerPage", e.target.value)}
-          >
-            <option value="10">10</option>
-            <option value="25">25</option>
-            <option value="50">50</option>
-            <option value="100">100</option>
-          </select>
-        </div>
-      </div>
-
-      <div className="settings-card">
-        <h3 className="section-title">Appearance & Language</h3>
-
-        <div className="settings-row">
-          <div>
-            <p className="detail-value">Theme</p>
-            <p className="detail-label">Application color theme</p>
-          </div>
-          <select
-            className="table-filter-select"
-            value={settings.theme}
-            onChange={(e) => updateSetting("theme", e.target.value)}
-          >
-            <option value="Light">Light</option>
-            <option value="Dark">Dark (coming soon)</option>
-          </select>
-        </div>
-
-        <div className="settings-row">
-          <div>
-            <p className="detail-value">Language</p>
-            <p className="detail-label">Interface display language</p>
-          </div>
-          <select
-            className="table-filter-select"
-            value={settings.language}
-            onChange={(e) => updateSetting("language", e.target.value)}
-          >
-            <option value="English">English</option>
-            <option value="Hindi">Hindi (coming soon)</option>
-            <option value="Marathi">Marathi (coming soon)</option>
-          </select>
-        </div>
-      </div>
-
-      <div className="settings-card">
-        <h3 className="section-title">Notifications</h3>
-
-        <div className="settings-row">
-          <div>
-            <p className="detail-value">Email Notifications</p>
-            <p className="detail-label">Get notified when a detection run completes</p>
-          </div>
-          <label className="checkbox-label">
-            <input
-              type="checkbox"
-              checked={settings.emailNotifications}
-              onChange={() => updateSetting("emailNotifications", !settings.emailNotifications)}
+        <Section icon={Bell} title="Notifications and refresh" description="What happens while you work.">
+          <Row title="Auto-refresh dashboard" description="Refresh the dashboard numbers every 5 minutes.">
+            <Switch
+              label="Auto-refresh dashboard"
+              checked={Boolean(draft.autoRefreshDashboard)}
+              onChange={(value) => update("autoRefreshDashboard", value)}
             />
-            Enabled
-          </label>
-        </div>
-
-        <div className="settings-row">
-          <div>
-            <p className="detail-value">Sound Alerts</p>
-            <p className="detail-label">Play a sound when processing finishes</p>
-          </div>
-          <label className="checkbox-label">
-            <input
-              type="checkbox"
-              checked={settings.soundAlerts}
-              onChange={() => updateSetting("soundAlerts", !settings.soundAlerts)}
-            />
-            Enabled
-          </label>
-        </div>
-
-        <div className="settings-row">
-          <div>
-            <p className="detail-value">Auto-Refresh Dashboard</p>
-            <p className="detail-label">Automatically refresh dashboard stats every few minutes</p>
-          </div>
-          <label className="checkbox-label">
-            <input
-              type="checkbox"
-              checked={settings.autoRefreshDashboard}
-              onChange={() => updateSetting("autoRefreshDashboard", !settings.autoRefreshDashboard)}
-            />
-            Enabled
-          </label>
-        </div>
+          </Row>
+          <Row title="Email notifications" description="Get an email when a detection run finishes." soon>
+            <Switch label="Email notifications" checked={false} disabled onChange={() => {}} />
+          </Row>
+          <Row title="Sound alerts" description="Play a sound when processing finishes." soon>
+            <Switch label="Sound alerts" checked={false} disabled onChange={() => {}} />
+          </Row>
+        </Section>
       </div>
 
-      <div className="settings-actions-row">
-        <button className="start-detection-btn" onClick={handleSave}>
-          <Save size={16} /> Save Preferences
-        </button>
-        <button className="secondary-btn" onClick={handleReset}>
-          <RotateCcw size={16} /> Reset to Default
-        </button>
+      <div className="ds-savebar">
+        <span>{dirty ? "You have unsaved changes." : "All changes saved."}</span>
+        <div className="ds-page-actions">
+          <Button
+            variant="onDark"
+            icon={RotateCcw}
+            onClick={() => persist({ ...DEFAULT_SETTINGS }, "Preferences reset to default.")}
+          >
+            Reset to default
+          </Button>
+          <Button
+            variant="light"
+            icon={Save}
+            disabled={!dirty}
+            onClick={() => persist(draft, "Preferences saved.")}
+          >
+            Save preferences
+          </Button>
+        </div>
       </div>
-
-      <p className="settings-note">
-        These preferences are stored locally for now. Once connected to a backend,
-        they can be saved per-user via a <code>/settings</code> endpoint.
-      </p>
     </div>
   );
 }

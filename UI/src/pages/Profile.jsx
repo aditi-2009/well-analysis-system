@@ -1,79 +1,104 @@
-// src/pages/Profile.jsx
+﻿// src/pages/Profile.jsx
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { LogOut, Edit3, KeyRound } from "lucide-react";
+import { LogOut } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
+import { useDocumentTitle } from "../hooks/useDocumentTitle";
+import PageHeader from "../components/common/PageHeader";
+import ConfirmDialog from "../components/common/ConfirmDialog";
+import Button from "../components/common/Button";
 
 function Profile() {
+  useDocumentTitle("Profile");
+
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-
-  const [actionMessage, setActionMessage] = useState("");
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
   const handleLogout = () => {
     logout();
-    navigate("/login");
+    navigate("/");
   };
 
-  const handleEditProfile = () => {
-    // Mock — real edit form/API call would go here later
-    setActionMessage("Edit profile is not yet connected to a backend. This is a placeholder.");
-    setTimeout(() => setActionMessage(""), 4000);
-  };
+  const details = [
+    ["Full name", user?.fullName],
+    ["Email", user?.email],
+    ["Organization", user?.organization],
+    ["Mobile", user?.mobile],
+  ];
 
-  const handleChangePassword = () => {
-    // Mock — real change-password form/API call would go here later
-    setActionMessage("Change password is not yet connected to a backend. This is a placeholder.");
-    setTimeout(() => setActionMessage(""), 4000);
-  };
+  const securityItems = [
+    ["Change password", "Update your account password."],
+    ["Two-factor authentication", "Add an extra step when you sign in."],
+    ["Login activity", "See where your account was used."],
+  ];
 
   return (
-    <div className="profile-page">
-      <h2 className="page-heading">Profile</h2>
-      <p className="page-subheading">Your account information</p>
+    <div className="ds-page">
+      <PageHeader title="Profile" description="Your account information" />
 
-      {actionMessage && <div className="action-message-banner">{actionMessage}</div>}
-
-      <div className="profile-card">
-        <div className="profile-avatar">
+      <div className="ds-hero">
+        <div className="ds-avatar" aria-hidden="true">
           {user?.fullName ? user.fullName.charAt(0).toUpperCase() : "U"}
         </div>
-
-        <div className="profile-info">
-          <div className="detail-row">
-            <span className="detail-label">Full Name</span>
-            <span className="detail-value">{user?.fullName || "—"}</span>
-          </div>
-          <div className="detail-row">
-            <span className="detail-label">Email</span>
-            <span className="detail-value">{user?.email || "—"}</span>
-          </div>
-          <div className="detail-row">
-            <span className="detail-label">Organization</span>
-            <span className="detail-value">{user?.organization || "—"}</span>
-          </div>
-          <div className="detail-row">
-            <span className="detail-label">Mobile</span>
-            <span className="detail-value">{user?.mobile || "—"}</span>
-          </div>
-          <div className="detail-row">
-            <span className="detail-label">Role</span>
-            <span className="detail-value">Researcher</span>
-          </div>
+        <div className="ds-hero-body">
+          <h2 className="ds-hero-name">{user?.fullName || "User"}</h2>
+          <p className="ds-hero-meta">{user?.email || ""}</p>
+          {user?.organization && (
+            <div className="ds-chip-row">
+              <span className="ds-chip ds-chip-onDark">{user.organization}</span>
+            </div>
+          )}
         </div>
-
-        <div className="profile-actions">
-          <button className="secondary-btn" onClick={handleEditProfile}>
-            <Edit3 size={16} /> Edit Profile
-          </button>
-          <button className="secondary-btn" onClick={handleChangePassword}>
-            <KeyRound size={16} /> Change Password
-          </button>
-          <button className="logout-danger-btn" onClick={handleLogout}>
-            <LogOut size={16} /> Logout
-          </button>
+        <div className="ds-hero-actions">
+          <Button variant="onDark" icon={LogOut} onClick={() => setConfirmOpen(true)}>
+            Log out
+          </Button>
         </div>
       </div>
+
+      <div className="ds-grid-2">
+        <section className="ds-card">
+          <div className="ds-card-head">
+            <h2 className="ds-card-title">Account details</h2>
+          </div>
+          <dl className="ds-kv ds-kv-rows">
+            {details.map(([label, value]) => (
+              <div key={label}>
+                <dt>{label}</dt>
+                <dd>{value || "Not provided"}</dd>
+              </div>
+            ))}
+          </dl>
+        </section>
+
+        <section className="ds-card">
+          <div className="ds-card-head">
+            <h2 className="ds-card-title">Security</h2>
+          </div>
+          {securityItems.map(([title, description]) => (
+            <div className="ds-setting" key={title}>
+              <div>
+                <p className="ds-setting-title">
+                  {title} <span className="ds-soon">Coming soon</span>
+                </p>
+                <p className="ds-setting-desc">{description}</p>
+              </div>
+            </div>
+          ))}
+        </section>
+      </div>
+
+      <ConfirmDialog
+        open={confirmOpen}
+        title="Log out?"
+        confirmLabel="Log out"
+        tone="danger"
+        onConfirm={handleLogout}
+        onCancel={() => setConfirmOpen(false)}
+      >
+        You will need to sign in again to use the system.
+      </ConfirmDialog>
     </div>
   );
 }

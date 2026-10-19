@@ -35,14 +35,6 @@ tempCodeRunnerFile.py
 .coverage
 htmlcov/
 
-# Project datasets (large files)
-Ai-Models/data/
-Ai-Models/dataset/
-Datasets/
-Data-Preprocessing/
-Ai-Models/tiles/
-Ai-Models/runs/
-
 # Large model files
 *.pt
 *.pth
@@ -54,3 +46,20 @@ Ai-Models/runs/
 *.tif
 *.tiff
 *.zip
+# Local uploads and generated snapshots
+Backend/storage/uploads/
+CODE_SNAPSHOTS/
+upload_files.txt
+
+# Model-training datasets and generated outputs
+Model-Training/data/
+Model-Training/runs/
+runs/
+
+# Model weights and large imagery
+*.pt
+*.pth
+*.onnx
+*.tif
+*.tiff
+*.ecw

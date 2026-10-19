@@ -21,9 +21,10 @@ export function AuthProvider({ children }) {
     localStorage.setItem("agriWellUser", JSON.stringify(userData));
   };
 
-  const logout = () => {
+    const logout = () => {
     setUser(null);
     localStorage.removeItem("agriWellUser");
+    localStorage.removeItem("agriWellToken");
   };
 
   const value = {

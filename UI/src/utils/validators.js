@@ -5,10 +5,10 @@ export function isValidEmail(email) {
 }
 
 export function isValidMobile(mobile) {
-  return /^[6-9]\d{9}$/.test(mobile); // basic 10-digit Indian mobile format
+  return /^[6-9]\d{9}$/.test(mobile); // 10-digit Indian mobile number
 }
 
 export function isStrongPassword(password) {
-  // At least 6 characters — kept simple for a research/internal tool
-  return password.length >= 6;
+  // Same rule as the backend: at least 8 characters
+  return password.length >= 8;
 }

@@ -1,125 +1,130 @@
-// src/pages/Results.jsx
-import { useEffect, useState } from "react";
-import { Download, FileText, Map as MapIcon } from "lucide-react";
+﻿// src/pages/Results.jsx
+import { useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
+import { Download, Map as MapIcon, Search } from "lucide-react";
 import { getAllWells } from "../services/wellService";
-import { exportWellsToCSV, generateReport } from "../services/exportService";
-import { CONFIDENCE_LEVELS } from "../utils/constants";
+import { exportWellsToCSV } from "../services/exportService";
+import { CONFIDENCE_COLORS, confidenceLevel } from "../utils/confidence";
+import { useDocumentTitle } from "../hooks/useDocumentTitle";
+import { useToast } from "../context/ToastContext";
 import WellTable from "../components/wells/WellTable";
 import WellDetails from "../components/wells/WellDetails";
 import WellMap from "../components/map/WellMap";
-import Loader from "../components/common/Loader";
-import ErrorMessage from "../components/common/ErrorMessage";
+import PageHeader from "../components/common/PageHeader";
+import LoadingState from "../components/common/LoadingState";
+import ErrorState from "../components/common/ErrorState";
+import EmptyState from "../components/common/EmptyState";
+import Button from "../components/common/Button";
 
 function Results() {
+  useDocumentTitle("Results");
+  const toast = useToast();
+
   const [wells, setWells] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState("");
-
+  const [error, setError] = useState(null);
   const [selectedWell, setSelectedWell] = useState(null);
   const [showMap, setShowMap] = useState(false);
 
-  const [isGeneratingReport, setIsGeneratingReport] = useState(false);
-  const [actionMessage, setActionMessage] = useState("");
+  async function loadWells() {
+    setIsLoading(true);
+    setError(null);
+    try {
+      setWells(await getAllWells());
+    } catch (err) {
+      setError(err);
+    } finally {
+      setIsLoading(false);
+    }
+  }
 
   useEffect(() => {
-    async function loadWells() {
-      setIsLoading(true);
-      setError("");
-      try {
-        const data = await getAllWells();
-        setWells(data);
-      } catch (err) {
-        setError("Unable to load detection results. Please try again later.");
-      } finally {
-        setIsLoading(false);
-      }
-    }
     loadWells();
   }, []);
 
-  if (isLoading) return <Loader message="Loading results..." />;
-  if (error) return <ErrorMessage message={error} />;
+  // Hooks must run on every render, so this sits above the early returns below.
+  const counts = useMemo(() => {
+    const result = { high: 0, medium: 0, low: 0 };
+    wells.forEach((well) => {
+      result[confidenceLevel(well.confidence).key] += 1;
+    });
+    return result;
+  }, [wells]);
 
-  // Summary counts derived from the loaded wells
-  const totalWells = wells.length;
-  const highConfidence = wells.filter((w) => w.confidence >= CONFIDENCE_LEVELS.HIGH).length;
-  const mediumConfidence = wells.filter(
-    (w) => w.confidence >= CONFIDENCE_LEVELS.MEDIUM && w.confidence < CONFIDENCE_LEVELS.HIGH
-  ).length;
-  const lowConfidence = wells.filter((w) => w.confidence < CONFIDENCE_LEVELS.MEDIUM).length;
+  if (isLoading) return <LoadingState label="Loading results" />;
+  if (error) return <ErrorState what="the detection results" error={error} onRetry={loadWells} />;
 
-  const summaryCards = [
-    { label: "Total Wells", value: totalWells, color: "#14532d" },
-    { label: "High Confidence", value: highConfidence, color: "#16a34a" },
-    { label: "Medium Confidence", value: mediumConfidence, color: "#f59e0b" },
-    { label: "Low Confidence", value: lowConfidence, color: "#dc2626" },
+  const tiles = [
+    { label: "Total Wells", value: wells.length, color: "#14532d" },
+    { label: "High Confidence", value: counts.high, color: CONFIDENCE_COLORS.high },
+    { label: "Medium Confidence", value: counts.medium, color: CONFIDENCE_COLORS.medium },
+    { label: "Low Confidence", value: counts.low, color: CONFIDENCE_COLORS.low },
   ];
 
   const handleDownloadCSV = () => {
     try {
       exportWellsToCSV(wells);
-      setActionMessage("CSV downloaded successfully.");
+      toast.success("CSV downloaded.");
     } catch (err) {
-      setActionMessage(err.message);
-    }
-    setTimeout(() => setActionMessage(""), 3000);
-  };
-
-  const handleGenerateReport = async () => {
-    setIsGeneratingReport(true);
-    setActionMessage("");
-    try {
-      const report = await generateReport(wells);
-      setActionMessage(`Report ${report.reportId} generated successfully.`);
-    } catch (err) {
-      setActionMessage(err.message || "Failed to generate report.");
-    } finally {
-      setIsGeneratingReport(false);
-      setTimeout(() => setActionMessage(""), 4000);
+      toast.error(err.message);
     }
   };
 
   return (
-    <div className="results-page">
-      <h2 className="page-heading">Detection Results</h2>
-      <p className="page-subheading">Full breakdown of all detected wells</p>
+    <div className="ds-page">
+      <PageHeader
+        title="Detection Results"
+        description="Full breakdown of all detected wells"
+        actions={
+          <>
+            <Button variant="secondary" icon={MapIcon} onClick={() => setShowMap((prev) => !prev)}>
+              {showMap ? "Hide map" : "Show map"}
+            </Button>
+            <Button variant="secondary" icon={Download} onClick={handleDownloadCSV}>
+              Download CSV
+            </Button>
+          </>
+        }
+      />
 
-      {actionMessage && <div className="action-message-banner">{actionMessage}</div>}
-
-      <div className="stat-cards-grid">
-        {summaryCards.map(({ label, value, color }) => (
-          <div className="stat-card" key={label}>
-            <div>
-              <p className="stat-value" style={{ color }}>{value}</p>
-              <p className="stat-label">{label}</p>
-            </div>
+      {wells.length === 0 ? (
+        <EmptyState
+          icon={Search}
+          title="No detection results yet"
+          action={
+            <Link to="/app/detection" className="ds-btn ds-btn-primary">
+              Go to Well Detection
+            </Link>
+          }
+        >
+          Detected wells are listed here after a detection run finishes.
+        </EmptyState>
+      ) : (
+        <>
+          <div className="ds-stats">
+            {tiles.map(({ label, value, color }) => (
+              <div className="ds-stat" key={label} style={{ "--accent": color }}>
+                <div className="ds-stat-top">
+                  <span className="ds-stat-label">{label}</span>
+                </div>
+                <p className="ds-stat-value">{value}</p>
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
 
-      <div className="results-actions-row">
-        <button className="secondary-btn" onClick={() => setShowMap((prev) => !prev)}>
-          <MapIcon size={16} /> {showMap ? "Hide Map" : "View Map"}
-        </button>
-        <button className="secondary-btn" onClick={handleDownloadCSV}>
-          <Download size={16} /> Download CSV
-        </button>
-        <button className="start-detection-btn" onClick={handleGenerateReport} disabled={isGeneratingReport}>
-          <FileText size={16} /> {isGeneratingReport ? "Generating..." : "Generate Report"}
-        </button>
-      </div>
+          {showMap && (
+            <div style={{ marginBottom: 16 }}>
+              <WellMap wells={wells} />
+            </div>
+          )}
 
-      {showMap && (
-        <div className="results-map-block">
-          <WellMap wells={wells} />
-        </div>
+          <div className="ds-card">
+            <WellTable wells={wells} onRowClick={setSelectedWell} />
+          </div>
+        </>
       )}
 
-      <WellTable wells={wells} onRowClick={setSelectedWell} />
-
-      {selectedWell && (
-        <WellDetails well={selectedWell} onClose={() => setSelectedWell(null)} />
-      )}
+      {selectedWell && <WellDetails well={selectedWell} onClose={() => setSelectedWell(null)} />}
     </div>
   );
 }

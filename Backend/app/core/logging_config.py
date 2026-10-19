@@ -91,5 +91,7 @@ def setup_logging() -> None:
     logging.getLogger("botocore").setLevel(logging.WARNING)
 
     root_logger.info(
-        "Logging configured | level=%s | file=%s", settings.LOG_LEVEL.upper(), log_file_path
+        "Logging configured | level=%s | file=%s",
+        settings.LOG_LEVEL.upper(),
+        log_file_path,
     )

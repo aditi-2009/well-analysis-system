@@ -1,0 +1,4569 @@
+ 
+================================================== 
+FILE: F:\frontend\src\App.jsx 
+================================================== 
+// src/App.jsx
+import { BrowserRouter } from "react-router-dom";
+import { AuthProvider } from "./context/AuthContext";
+import AppRoutes from "./routes/AppRoutes";
+import "./index.css";
+
+function App() {
+  return (
+    <BrowserRouter>
+      <AuthProvider>
+        <AppRoutes />
+      </AuthProvider>
+    </BrowserRouter>
+  );
+}
+
+export default App; 
+================================================== 
+FILE: F:\frontend\src\main.jsx 
+================================================== 
+// src/main.jsx
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import App from "./App.jsx";
+import "./index.css";
+import "leaflet/dist/leaflet.css"; 
+import "./utils/leafletIconFix";
+
+createRoot(document.getElementById("root")).render(
+  <StrictMode>
+    <App />
+  </StrictMode>
+); 
+================================================== 
+FILE: F:\frontend\src\index.css 
+================================================== 
+/* ===== CSS Variables — ICAR-NBSS&LUP Theme ===== */
+:root {
+  --primary: #1a5d1a;
+  --primary-dark: #0e3d0e;
+  --primary-light: #e9f4e6;
+  --saffron: #ff9933;
+  --tricolor-green: #138808;
+  --bg: #f4f6f8;
+  --text-dark: #1f2937;
+  --text-muted: #6b7280;
+}
+
+/* ===== Base ===== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Segoe UI", Arial, sans-serif;
+  background-color: var(--bg);
+  color: var(--text-dark);
+}
+
+.app-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 70vh;
+}
+
+.app-body {
+  display: flex;
+  flex: 1;
+}
+
+.main-content {
+  flex: 1;
+  padding: 20px;
+  overflow-x: hidden;
+}
+
+/* ===== Navbar (internal app top bar) ===== */
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: var(--primary);
+  color: #ffffff;
+  padding: 8px 20px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  z-index: 20;
+}
+
+.navbar-menu-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 6px;
+}
+
+.navbar-menu-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.navbar-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+/* ===== Sidebar ===== */
+.sidebar {
+  width: 230px;
+  background-color: #ffffff;
+  border-right: 1px solid #e2e8f0;
+  padding: 16px 0;
+  flex-shrink: 0;
+}
+
+.sidebar-header {
+  display: none;
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 0 12px;
+}
+
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  color: #374151;
+  text-decoration: none;
+  font-size: 14px;
+  transition: background-color 0.15s ease;
+}
+
+.sidebar-link:hover {
+  background-color: var(--primary-light);
+}
+
+.sidebar-link-active {
+  background-color: var(--primary);
+  color: #ffffff;
+}
+
+.sidebar-overlay {
+  display: none;
+}
+
+@media (min-width: 769px) {
+  .sidebar-collapsed {
+    width: 0;
+    padding: 0;
+    border: none;
+    overflow: hidden;
+  }
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: -260px;
+    height: 100vh;
+    width: 230px;
+    z-index: 40;
+    transition: left 0.25s ease;
+    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15);
+  }
+
+  .sidebar-open {
+    left: 0;
+  }
+
+  .sidebar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-bottom: 1px solid #e2e8f0;
+  }
+
+  .sidebar-title {
+    font-weight: 600;
+  }
+
+  .sidebar-close-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #374151;
+  }
+
+  .sidebar-overlay {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 30;
+  }
+}
+
+/* ===== Profile dropdown ===== */
+.navbar-profile-wrapper {
+  position: relative;
+}
+
+.navbar-user {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  background: none;
+  border: none;
+  color: #ffffff;
+  cursor: pointer;
+  padding: 6px 8px;
+  border-radius: 6px;
+}
+
+.navbar-user:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.profile-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+  min-width: 220px;
+  z-index: 60;
+  overflow: hidden;
+}
+
+.profile-dropdown-header {
+  padding: 14px 16px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.profile-dropdown-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.profile-dropdown-email {
+  font-size: 12px;
+  color: #6b7280;
+  margin-top: 2px;
+}
+
+.profile-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 16px;
+  background: none;
+  border: none;
+  text-align: left;
+  font-size: 13px;
+  color: #374151;
+  cursor: pointer;
+}
+
+.profile-dropdown-item:hover {
+  background-color: var(--primary-light);
+}
+
+.profile-dropdown-logout {
+  color: #991b1b;
+  border-top: 1px solid #f0f0f0;
+}
+
+.profile-dropdown-logout:hover {
+  background-color: #fee2e2;
+}
+
+/* ===== Auth Pages (Login / Register) ===== */
+.auth-page {
+  min-height: 60vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  padding: 48px 20px;
+}
+
+.auth-card {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 32px;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  border-top: 4px solid var(--saffron);
+}
+
+.auth-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.auth-header h2 {
+  color: var(--primary);
+  font-size: 18px;
+  font-family: "Source Serif 4", Georgia, "Times New Roman", serif;
+}
+
+.auth-header p {
+  color: var(--text-muted);
+  font-size: 13px;
+  margin-top: 4px;
+}
+
+.auth-form-title {
+  text-align: center;
+  margin-bottom: 16px;
+  color: #1f2937;
+}
+
+.auth-error-banner {
+  background: #fee2e2;
+  color: #991b1b;
+  padding: 10px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  margin-bottom: 14px;
+}
+
+.auth-success-banner {
+  background: #dcfce7;
+  color: #166534;
+  padding: 10px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  margin-bottom: 14px;
+}
+
+.form-group {
+  margin-bottom: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.form-group label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.form-group input {
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  outline: none;
+}
+
+.form-group input:focus {
+  border-color: var(--primary);
+}
+
+.password-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-input-wrapper input {
+  width: 100%;
+  padding-right: 38px;
+}
+
+.password-toggle-btn {
+  position: absolute;
+  right: 8px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #6b7280;
+  display: flex;
+}
+
+.field-error {
+  color: #dc2626;
+  font-size: 12px;
+}
+
+.auth-options-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  font-size: 13px;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #374151;
+}
+
+.auth-link-small {
+  color: var(--primary);
+  text-decoration: none;
+}
+
+.auth-submit-btn {
+  width: 100%;
+  background-color: var(--primary);
+  color: #ffffff;
+  border: none;
+  padding: 11px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.auth-submit-btn:hover:not(:disabled) {
+  background-color: var(--primary-dark);
+}
+
+.auth-submit-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.auth-switch-text {
+  text-align: center;
+  font-size: 13px;
+  margin-top: 16px;
+  color: #374151;
+}
+
+.auth-switch-text a {
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.auth-hint {
+  text-align: center;
+  font-size: 11px;
+  color: #9ca3af;
+  margin-top: 12px;
+}
+
+/* ===== Page headings ===== */
+.page-heading {
+  font-size: 22px;
+  color: var(--primary);
+  margin-bottom: 4px;
+  font-family: "Source Serif 4", Georgia, "Times New Roman", serif;
+}
+
+.page-subheading {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 20px;
+}
+
+/* ===== Dashboard ===== */
+.stat-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.stat-card {
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 18px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  border-left: 3px solid var(--primary);
+}
+
+.stat-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.stat-value {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.stat-label {
+  font-size: 12px;
+  color: #6b7280;
+  margin-top: 2px;
+}
+
+.charts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 16px;
+}
+
+.chart-card {
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 16px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+.chart-title {
+  font-size: 14px;
+  color: #374151;
+  margin-bottom: 10px;
+}
+
+/* ===== Loader ===== */
+.loader-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 0;
+  color: #6b7280;
+  font-size: 14px;
+  gap: 12px;
+}
+
+.spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid #e5e7eb;
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ===== Error message ===== */
+.error-message-box {
+  background: #fee2e2;
+  color: #991b1b;
+  padding: 14px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  margin: 20px 0;
+}
+
+/* ===== Map ===== */
+.map-container-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.leaflet-map {
+  width: 100%;
+  height: 65vh;
+  min-height: 400px;
+  border-radius: 10px;
+  z-index: 1;
+}
+
+.map-selected-info {
+  margin-top: 10px;
+  background: var(--primary-light);
+  border: 1px solid #bcd2e8;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  color: var(--primary);
+}
+
+.well-popup p {
+  margin: 2px 0;
+  font-size: 13px;
+}
+
+.popup-details-btn {
+  margin-top: 6px;
+  background-color: var(--primary);
+  color: #fff;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.popup-details-btn:hover {
+  background-color: var(--primary-dark);
+}
+
+@media (max-width: 768px) {
+  .leaflet-map {
+    height: 55vh;
+  }
+}
+
+/* ===== Well Detection Page ===== */
+.detection-form-card,
+.detection-preview-card,
+.detection-processing-card,
+.detection-completed-card {
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+.area-type-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+}
+
+.area-type-tab {
+  padding: 7px 14px;
+  border-radius: 20px;
+  border: 1px solid #d1d5db;
+  background: #f9fafb;
+  font-size: 13px;
+  cursor: pointer;
+  color: #374151;
+}
+
+.area-type-tab-active {
+  background-color: var(--primary);
+  color: #ffffff;
+  border-color: var(--primary);
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.search-location-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px;
+  background: var(--primary-light);
+  border: 1px solid #bcd2e8;
+  border-radius: 6px;
+  color: var(--primary);
+  font-size: 13px;
+  cursor: pointer;
+  height: 40px;
+}
+
+.preview-btn,
+.start-detection-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: var(--primary);
+  color: #ffffff;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.preview-btn:hover,
+.start-detection-btn:hover {
+  background-color: var(--primary-dark);
+}
+
+.start-detection-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.secondary-btn {
+  background: #f3f4f6;
+  color: #374151;
+  border: 1px solid #d1d5db;
+  padding: 10px 18px;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.secondary-btn:hover {
+  background: #e5e7eb;
+}
+
+.section-title {
+  font-size: 16px;
+  color: var(--primary);
+  margin-bottom: 12px;
+}
+
+.preview-summary {
+  background: #f9fafb;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  font-size: 13px;
+}
+
+.preview-summary p {
+  margin: 3px 0;
+}
+
+.preview-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 16px;
+  flex-wrap: wrap;
+}
+
+/* ===== Well Details Modal ===== */
+.well-details-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  padding: 16px;
+}
+
+.well-details-modal {
+  background: #ffffff;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 700px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.well-details-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.well-details-header h3 {
+  font-size: 16px;
+  color: var(--primary);
+}
+
+.modal-close-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #6b7280;
+}
+
+.well-details-body {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.well-details-info {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  border-bottom: 1px dashed #e5e7eb;
+  padding-bottom: 8px;
+}
+
+.detail-label {
+  color: #6b7280;
+}
+
+.detail-value {
+  color: #1f2937;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.confidence-badge {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-weight: 600;
+}
+
+.well-details-images {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+.image-block-label {
+  font-size: 12px;
+  color: #6b7280;
+  margin-bottom: 6px;
+}
+
+.image-block img {
+  width: 100%;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+/* ===== Well Table ===== */
+.well-table-wrapper {
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 16px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+.table-controls {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+
+.table-search-input {
+  flex: 1;
+  min-width: 200px;
+  padding: 9px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 13px;
+}
+
+.table-filter-select {
+  padding: 9px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 13px;
+  background: #fff;
+  color: #1f2937;
+}
+
+.table-scroll-container {
+  overflow-x: auto;
+}
+
+.wells-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 560px;
+  font-size: 13px;
+}
+
+.wells-table th {
+  text-align: left;
+  padding: 10px 12px;
+  background: var(--primary-light);
+  color: var(--primary);
+  cursor: pointer;
+  white-space: nowrap;
+  user-select: none;
+}
+
+.wells-table th svg {
+  vertical-align: middle;
+  margin-left: 4px;
+  opacity: 0.6;
+}
+
+.wells-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.table-row-clickable {
+  cursor: pointer;
+}
+
+.table-row-clickable:hover {
+  background-color: #f9fafb;
+}
+
+.status-pill {
+  background: #dcfce7;
+  color: #166534;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.table-empty-row {
+  text-align: center;
+  padding: 24px;
+  color: #9ca3af;
+}
+
+/* ===== Results Page ===== */
+.results-actions-row {
+  display: flex;
+  gap: 10px;
+  margin: 18px 0;
+  flex-wrap: wrap;
+}
+
+.results-map-block {
+  margin-bottom: 18px;
+}
+
+.action-message-banner {
+  background: #dcfce7;
+  color: #166534;
+  padding: 10px 14px;
+  border-radius: 6px;
+  font-size: 13px;
+  margin-bottom: 16px;
+}
+
+/* ===== Reports Page ===== */
+.report-summary-card,
+.report-map-card {
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  margin-bottom: 18px;
+}
+
+.report-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.report-summary-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: #f9fafb;
+  padding: 12px 14px;
+  border-radius: 8px;
+}
+
+.report-summary-item .detail-value {
+  font-size: 16px;
+}
+
+.report-actions-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* ===== Profile Page ===== */
+.profile-card {
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 24px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  max-width: 480px;
+}
+
+.profile-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background-color: var(--primary);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+
+.profile-info {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.profile-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.logout-danger-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+  padding: 10px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.logout-danger-btn:hover {
+  background: #fecaca;
+}
+
+/* ===== Settings Page ===== */
+.settings-card {
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 560px;
+  margin-bottom: 18px;
+}
+
+.settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  border-bottom: 1px solid #f0f0f0;
+  padding-bottom: 16px;
+}
+
+.settings-row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.settings-note {
+  font-size: 12px;
+  color: #9ca3af;
+  margin-top: 14px;
+}
+
+.settings-actions-row {
+  display: flex;
+  gap: 10px;
+  margin: 18px 0 10px;
+  flex-wrap: wrap;
+}
+/* ===== Public site: skip link & utility bar ===== */
+.skip-link {
+  position: absolute;
+  left: -999px;
+  top: auto;
+  background: var(--primary-dark);
+  color: #fff;
+  padding: 10px 16px;
+  z-index: 1000;
+  border-radius: 4px;
+}
+
+.skip-link:focus {
+  left: 12px;
+  top: 12px;
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+[tabindex]:focus-visible {
+  outline: 3px solid var(--saffron);
+  outline-offset: 2px;
+}
+
+.utility-bar {
+  background: var(--primary-dark);
+  color: #f2f5f7;
+  font-size: 12px;
+}
+
+.utility-bar-inner {
+  max-width: 1180px;
+  margin: 0 auto;
+  height: 32px;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.utility-bar-item {
+  opacity: 0.9;
+}
+
+.utility-bar-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.utility-bar-label {
+  opacity: 0.75;
+  margin-right: 2px;
+}
+
+.utility-bar-controls button {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  color: #f2f5f7;
+  border-radius: 3px;
+  padding: 1px 7px;
+  font-size: 12px;
+  line-height: 1.6;
+  cursor: pointer;
+}
+
+.utility-bar-controls button:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.utility-bar-controls a {
+  color: #f2f5f7;
+  opacity: 0.9;
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+}
+
+.utility-bar-controls a:hover {
+  opacity: 1;
+  border-bottom-color: rgba(255, 255, 255, 0.5);
+}
+
+@media (max-width: 640px) {
+  .utility-bar-item {
+    display: none;
+  }
+}
+
+/* ===== Public header ===== */
+.public-header {
+  background: #ffffff;
+  border-bottom: 3px solid var(--primary);
+}
+
+.public-header-inner {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 10px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.public-header-logo-link {
+  display: flex;
+  align-items: center;
+  flex-shrink: 1;
+  min-width: 0;
+  text-decoration: none;
+}
+
+.public-header-logo-img {
+  display: block;
+  width: auto;
+  max-width: 100%;
+  height: 62px;
+  object-fit: contain;
+}
+
+.public-header-menu-toggle {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  background: none;
+  border: 1.5px solid #d8dee4;
+  border-radius: 4px;
+  padding: 8px 10px;
+  cursor: pointer;
+}
+
+.public-header-menu-toggle span {
+  width: 20px;
+  height: 2px;
+  background: var(--primary);
+  display: block;
+}
+
+.public-header-right {
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+}
+
+.public-nav ul {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 22px;
+  margin: 0;
+  padding: 0;
+  flex-wrap: wrap;
+}
+
+.public-nav a {
+  color: var(--text-dark);
+  font-weight: 600;
+  font-size: 0.95rem;
+  padding: 6px 2px;
+  border-bottom: 2px solid transparent;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.public-nav a.is-active,
+.public-nav a:hover {
+  color: var(--primary);
+  border-bottom-color: var(--saffron);
+}
+
+@media (max-width: 900px) {
+  .public-header-inner {
+    padding: 10px 16px;
+  }
+
+  .public-header-logo-img {
+    height: 46px;
+  }
+
+  .public-header-menu-toggle {
+    display: flex;
+  }
+
+  .public-header-right {
+    display: none;
+    width: 100%;
+    align-items: flex-start;
+    border-top: 1px solid #e2e8f0;
+    margin-top: 12px;
+    margin-left: 0;
+    padding-top: 12px;
+  }
+
+  .public-header-right.is-open {
+    display: flex;
+  }
+
+  .public-nav {
+    width: 100%;
+  }
+
+  .public-nav ul {
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    gap: 4px;
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .public-header-logo-img {
+    height: 38px;
+  }
+}
+
+/* ===== Public footer ===== */
+.public-footer {
+  background: var(--primary-dark);
+  color: #f2f5f7;
+  margin-top: 64px;
+}
+
+.public-footer-grid {
+  max-width: 1180px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 32px;
+  padding: 48px 24px 32px;
+}
+
+.public-footer-heading {
+  color: #fff;
+  font-size: 0.85rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+}
+
+.public-footer-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.public-footer-list a {
+  color: rgba(242, 245, 247, 0.85);
+  font-size: 0.92rem;
+  text-decoration: none;
+}
+
+.public-footer-list a:hover {
+  color: #fff;
+  text-decoration: underline;
+}
+
+.public-footer-org {
+  color: rgba(242, 245, 247, 0.85);
+  font-size: 0.92rem;
+  margin: 0;
+}
+
+.public-footer-bottom {
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 16px 0;
+}
+
+.public-footer-bottom p {
+  margin: 0;
+  font-size: 0.82rem;
+  color: rgba(242, 245, 247, 0.7);
+  text-align: center;
+}
+
+@media (max-width: 720px) {
+  .public-footer-grid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+}
+
+/* ===== Public pages: shared container ===== */
+.public-container {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.public-section {
+  padding: 56px 0;
+}
+
+.public-section-muted {
+  background: var(--primary-light);
+}
+
+/* ===== Home hero ===== */
+.hero-section {
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: #f2f5f7;
+  padding: 64px 0;
+  border-bottom: 4px solid var(--saffron);
+}
+
+.hero-eyebrow {
+  display: inline-block;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #f0c99a;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.hero-heading {
+  color: #fff;
+  font-family: "Source Serif 4", Georgia, serif;
+  font-size: clamp(1.8rem, 4vw, 2.6rem);
+  max-width: 780px;
+  margin: 0 0 12px;
+}
+
+.hero-subheading {
+  color: #d7e3ee;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 14px;
+}
+
+.hero-body {
+  color: #c7d5e2;
+  max-width: 640px;
+  margin-bottom: 24px;
+}
+
+.hero-actions {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.hero-btn-primary,
+.hero-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 22px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  text-decoration: none;
+  border: 1.5px solid transparent;
+}
+
+.hero-btn-primary {
+  background: var(--saffron);
+  color: #241a0a;
+  border-color: var(--saffron);
+}
+
+.hero-btn-primary:hover {
+  background: #ffab52;
+}
+
+.hero-btn-secondary {
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.6);
+}
+
+.hero-btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* ===== Home: org strip + notice ===== */
+.org-strip {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 40px;
+  align-items: start;
+}
+
+.org-strip-panel {
+  background: #ffffff;
+  border: 1px solid #dde3e8;
+  border-radius: 8px;
+  padding: 24px;
+}
+
+.org-strip-list {
+  margin: 0;
+  padding-left: 18px;
+  color: var(--text-muted);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.notice-panel {
+  background: #ffffff;
+  border: 1px solid #dde3e8;
+  border-left: 4px solid var(--tricolor-green);
+  border-radius: 8px;
+  padding: 24px;
+}
+
+.public-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 20px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.92rem;
+  color: var(--primary);
+  border: 1.5px solid var(--primary);
+  text-decoration: none;
+  background: transparent;
+}
+
+.public-btn-secondary:hover {
+  background: var(--primary-light);
+}
+
+/* ===== Static pages (About / Contact) ===== */
+.static-page {
+  max-width: 860px;
+}
+
+.static-page-heading {
+  font-family: "Source Serif 4", Georgia, serif;
+  color: var(--primary);
+  font-size: 1.8rem;
+  margin-bottom: 24px;
+}
+
+.static-page-block {
+  margin-bottom: 32px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.static-page-block:last-child {
+  border-bottom: none;
+}
+
+.static-page-block h2 {
+  font-family: "Source Serif 4", Georgia, serif;
+  font-size: 1.3rem;
+  color: var(--primary);
+  border-left: 4px solid var(--saffron);
+  padding-left: 12px;
+  margin-bottom: 10px;
+}
+
+.static-page-block p {
+  color: var(--text-muted);
+  line-height: 1.65;
+  margin-bottom: 12px;
+}
+
+/* ===== Contact page ===== */
+.contact-info-list {
+  color: var(--text-muted);
+  line-height: 1.8;
+}
+
+.contact-form-card {
+  background: #ffffff;
+  border: 1px solid #dde3e8;
+  border-radius: 8px;
+  padding: 24px;
+  max-width: 560px;
+}
+
+.contact-form-card textarea {
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: inherit;
+  resize: vertical;
+}
+
+@media (max-width: 900px) {
+  .org-strip {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ===== Home page section heading helpers ===== */
+.section-eyebrow-green {
+  display: inline-block;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--tricolor-green);
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.section-heading {
+  font-family: "Source Serif 4", Georgia, serif;
+  color: var(--primary);
+  margin-top: 0;
+  margin-bottom: 10px;
+}
+
+.section-body {
+  color: var(--text-muted);
+  line-height: 1.65;
+  margin-bottom: 16px;
+}
+
+.section-body:last-child {
+  margin-bottom: 0;
+}
+
+/* ===== Navbar title (org name + app name) — was previously unstyled ===== */
+.navbar-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.navbar-title-link {
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+  line-height: 1.25;
+}
+
+.navbar-org {
+  font-family: "Source Serif 4", Georgia, serif;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #ffffff;
+}
+
+.navbar-app-name {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+@media (max-width: 640px) {
+  .navbar-app-name {
+    display: none;
+  }
+}
+ 
+================================================== 
+FILE: F:\frontend\src\components\charts\DashboardCharts.jsx 
+================================================== 
+// src/components/charts/DashboardCharts.jsx
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+  Legend,
+} from "recharts";
+
+const CONFIDENCE_COLORS = {
+  high: "#16a34a",
+  medium: "#f59e0b",
+  low: "#dc2626",
+};
+
+const PIE_COLORS = [CONFIDENCE_COLORS.high, CONFIDENCE_COLORS.medium, CONFIDENCE_COLORS.low];
+
+function DashboardCharts({ areaData, confidenceData }) {
+  return (
+    <div className="charts-grid">
+      <div className="chart-card">
+        <h4 className="chart-title">Wells Detected by Area</h4>
+        <ResponsiveContainer width="100%" height={260}>
+          <BarChart data={areaData}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+            <XAxis dataKey="area" tick={{ fontSize: 12 }} />
+            <YAxis allowDecimals={false} tick={{ fontSize: 12 }} />
+            <Tooltip />
+            <Legend wrapperStyle={{ fontSize: 12 }} />
+            <Bar dataKey="high" name="High Confidence" stackId="a" fill={CONFIDENCE_COLORS.high} />
+            <Bar dataKey="medium" name="Medium Confidence" stackId="a" fill={CONFIDENCE_COLORS.medium} />
+            <Bar dataKey="low" name="Low Confidence" stackId="a" fill={CONFIDENCE_COLORS.low} radius={[4, 4, 0, 0]} />
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+
+      <div className="chart-card">
+        <h4 className="chart-title">Detection Confidence Breakdown</h4>
+        <ResponsiveContainer width="100%" height={260}>
+          <PieChart>
+            <Pie data={confidenceData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} label>
+              {confidenceData.map((_, index) => (
+                <Cell key={index} fill={PIE_COLORS[index % PIE_COLORS.length]} />
+              ))}
+            </Pie>
+            <Tooltip />
+            <Legend wrapperStyle={{ fontSize: 12 }} />
+          </PieChart>
+        </ResponsiveContainer>
+      </div>
+    </div>
+  );
+}
+
+export default DashboardCharts; 
+================================================== 
+FILE: F:\frontend\src\components\common\ErrorMessage.jsx 
+================================================== 
+// src/components/common/ErrorMessage.jsx
+function ErrorMessage({ message = "Something went wrong. Please try again." }) {
+  return <div className="error-message-box">{message}</div>;
+}
+
+export default ErrorMessage; 
+================================================== 
+FILE: F:\frontend\src\components\common\Loader.jsx 
+================================================== 
+// src/components/common/Loader.jsx
+function Loader({ message = "Loading..." }) {
+  return (
+    <div className="loader-wrapper">
+      <div className="spinner" />
+      <p>{message}</p>
+    </div>
+  );
+}
+
+export default Loader; 
+================================================== 
+FILE: F:\frontend\src\components\common\Navbar.jsx 
+================================================== 
+// src/components/common/Navbar.jsx
+import { useState, useRef, useEffect } from "react";
+import { Menu, LogOut, UserCircle, Settings, ChevronDown } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
+import { APP_NAME, ORG_NAME } from "../../utils/constants";
+
+function Navbar({ onMenuClick }) {
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+  const profileMenuRef = useRef(null);
+
+  // Close the dropdown when clicking anywhere outside it
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (profileMenuRef.current && !profileMenuRef.current.contains(e.target)) {
+        setIsProfileMenuOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const handleLogout = () => {
+    logout();
+    navigate("/");
+  };
+
+  const goToProfile = () => {
+    setIsProfileMenuOpen(false);
+    navigate("/app/profile");
+  };
+
+  const goToSettings = () => {
+    setIsProfileMenuOpen(false);
+    navigate("/app/settings");
+  };
+
+  return (
+    <header className="navbar">
+      <div className="navbar-left">
+        <button className="navbar-menu-btn" onClick={onMenuClick} aria-label="Toggle sidebar" title="Toggle sidebar">
+          <Menu size={22} />
+        </button>
+        <div className="navbar-title">
+          <span className="navbar-org">{ORG_NAME}</span>
+          <span className="navbar-app-name">{APP_NAME}</span>
+        </div>
+      </div>
+
+      <div className="navbar-right">
+        <div className="navbar-profile-wrapper" ref={profileMenuRef}>
+          <button
+            className="navbar-user"
+            onClick={() => setIsProfileMenuOpen((prev) => !prev)}
+            aria-label="Open profile menu"
+          >
+            <UserCircle size={22} />
+            <span className="navbar-username">{user?.fullName || "User"}</span>
+            <ChevronDown size={14} />
+          </button>
+
+          {isProfileMenuOpen && (
+            <div className="profile-dropdown">
+              <div className="profile-dropdown-header">
+                <p className="profile-dropdown-name">{user?.fullName || "User"}</p>
+                <p className="profile-dropdown-email">{user?.email || ""}</p>
+              </div>
+              <button className="profile-dropdown-item" onClick={goToProfile}>
+                <UserCircle size={16} /> View Profile
+              </button>
+              <button className="profile-dropdown-item" onClick={goToSettings}>
+                <Settings size={16} /> Settings
+              </button>
+              <button className="profile-dropdown-item profile-dropdown-logout" onClick={handleLogout}>
+                <LogOut size={16} /> Logout
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    </header>
+  );
+}
+
+export default Navbar; 
+================================================== 
+FILE: F:\frontend\src\components\common\Sidebar.jsx 
+================================================== 
+// src/components/common/Sidebar.jsx
+import { NavLink } from "react-router-dom";
+import {
+  LayoutDashboard,
+  Search,
+  Map,
+  ListChecks,
+  FileText,
+  User,
+  Settings as SettingsIcon,
+  X,
+} from "lucide-react";
+
+const NAV_ITEMS = [
+  { label: "Dashboard", path: "/app/dashboard", icon: LayoutDashboard },
+  { label: "Well Detection", path: "/app/detection", icon: Search },
+  { label: "Map", path: "/app/map", icon: Map },
+  { label: "Results", path: "/app/results", icon: ListChecks },
+  { label: "Reports", path: "/app/reports", icon: FileText },
+  { label: "Profile", path: "/app/profile", icon: User },
+  { label: "Settings", path: "/app/settings", icon: SettingsIcon },
+];
+
+function Sidebar({ isMobileOpen, isDesktopVisible, onMobileClose }) {
+  const sidebarClasses = [
+    "sidebar",
+    isMobileOpen ? "sidebar-open" : "",
+    !isDesktopVisible ? "sidebar-collapsed" : "",
+  ].join(" ");
+
+  return (
+    <>
+      {isMobileOpen && <div className="sidebar-overlay" onClick={onMobileClose} />}
+
+      <aside className={sidebarClasses}>
+        <div className="sidebar-header">
+          <span className="sidebar-title">Menu</span>
+          <button className="sidebar-close-btn" onClick={onMobileClose} aria-label="Close menu">
+            <X size={20} />
+          </button>
+        </div>
+
+        <nav className="sidebar-nav">
+          {NAV_ITEMS.map(({ label, path, icon: Icon }) => (
+            <NavLink
+              key={path}
+              to={path}
+              className={({ isActive }) =>
+                `sidebar-link ${isActive ? "sidebar-link-active" : ""}`
+              }
+              onClick={onMobileClose}
+            >
+              <Icon size={18} />
+              <span>{label}</span>
+            </NavLink>
+          ))}
+        </nav>
+      </aside>
+    </>
+  );
+}
+
+export default Sidebar; 
+================================================== 
+FILE: F:\frontend\src\components\map\WellMap.jsx 
+================================================== 
+// src/components/map/WellMap.jsx
+import { useState } from "react";
+import { MapContainer, TileLayer, LayersControl } from "react-leaflet";
+import WellMarker from "./WellMarker";
+import { MAP_DEFAULT_CENTER, MAP_DEFAULT_ZOOM } from "../../utils/constants";
+
+const { BaseLayer } = LayersControl;
+
+function WellMap({ wells = [], center = MAP_DEFAULT_CENTER, zoom = MAP_DEFAULT_ZOOM, onSelectWell }) {
+  const [selectedWell, setSelectedWell] = useState(null);
+
+  const handleViewDetails = (well) => {
+    setSelectedWell(well);
+    if (onSelectWell) onSelectWell(well);
+  };
+
+  return (
+    <div className="map-container-wrapper">
+      <MapContainer center={center} zoom={zoom} scrollWheelZoom={true} className="leaflet-map">
+        <LayersControl position="topright">
+          <BaseLayer checked name="OpenStreetMap">
+            <TileLayer
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            />
+          </BaseLayer>
+          <BaseLayer name="Satellite">
+            <TileLayer
+              attribution="Tiles &copy; Esri"
+              url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+            />
+          </BaseLayer>
+        </LayersControl>
+
+        {wells.map((well) => (
+          <WellMarker key={well.id} well={well} onViewDetails={handleViewDetails} />
+        ))}
+      </MapContainer>
+
+      {selectedWell && (
+        <div className="map-selected-info">
+          <strong>Selected:</strong> {selectedWell.id} — {selectedWell.village}
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default WellMap; 
+================================================== 
+FILE: F:\frontend\src\components\map\WellMarker.jsx 
+================================================== 
+// src/components/map/WellMarker.jsx
+import { Marker, Popup } from "react-leaflet";
+import L from "leaflet";
+import { CONFIDENCE_LEVELS } from "../../utils/constants";
+
+function getMarkerIcon(confidence) {
+  let color = "#dc2626";
+  if (confidence >= CONFIDENCE_LEVELS.HIGH) color = "#16a34a";
+  else if (confidence >= CONFIDENCE_LEVELS.MEDIUM) color = "#f59e0b";
+
+  return L.divIcon({
+    className: "custom-well-marker",
+    html: `<div style="
+      width: 16px;
+      height: 16px;
+      background-color: ${color};
+      border: 2px solid #ffffff;
+      border-radius: 50%;
+      box-shadow: 0 0 4px rgba(0,0,0,0.4);
+    "></div>`,
+    iconSize: [16, 16],
+    iconAnchor: [8, 8],
+    popupAnchor: [0, -8],
+  });
+}
+
+function WellMarker({ well, onViewDetails }) {
+  return (
+    <Marker position={[well.latitude, well.longitude]} icon={getMarkerIcon(well.confidence)}>
+      <Popup>
+        <div className="well-popup">
+          <p><strong>Well ID:</strong> {well.id}</p>
+          <p><strong>Latitude:</strong> {well.latitude}</p>
+          <p><strong>Longitude:</strong> {well.longitude}</p>
+          <p><strong>Confidence:</strong> {Math.round(well.confidence * 100)}%</p>
+          <p><strong>Status:</strong> {well.status}</p>
+          <p><strong>Village:</strong> {well.village}</p>
+          {onViewDetails && (
+            <button className="popup-details-btn" onClick={() => onViewDetails(well)}>
+              View Details
+            </button>
+          )}
+        </div>
+      </Popup>
+    </Marker>
+  );
+}
+
+export default WellMarker; 
+================================================== 
+FILE: F:\frontend\src\components\public\PublicFooter.jsx 
+================================================== 
+// src/components/public/PublicFooter.jsx
+import { Link } from "react-router-dom";
+import { ORG_NAME } from "../../utils/constants";
+
+function PublicFooter() {
+  const year = new Date().getFullYear();
+
+  return (
+    <footer className="public-footer">
+      <div className="public-footer-grid">
+        <div>
+          <h3 className="public-footer-heading">Important Links</h3>
+          <ul className="public-footer-list">
+            <li><Link to="/">Home</Link></li>
+            <li><Link to="/about">About Us</Link></li>
+            <li><Link to="/contact">Contact Us</Link></li>
+            <li><Link to="/login">Login / Register</Link></li>
+          </ul>
+        </div>
+
+        <div>
+          <h3 className="public-footer-heading">Organization</h3>
+          <p className="public-footer-org">
+            {ORG_NAME}
+            <br />
+            Nagpur, Maharashtra, India
+          </p>
+        </div>
+
+        <div>
+          <h3 className="public-footer-heading">Policies</h3>
+          <ul className="public-footer-list">
+            <li><Link to="/privacy-policy">Privacy Policy</Link></li>
+            <li><Link to="/terms">Terms &amp; Conditions</Link></li>
+            <li><Link to="/accessibility">Accessibility</Link></li>
+            <li><Link to="/disclaimer">Disclaimer</Link></li>
+          </ul>
+        </div>
+      </div>
+
+      <div className="public-footer-bottom">
+        <p>© {year} {ORG_NAME}. All Rights Reserved.</p>
+      </div>
+    </footer>
+  );
+}
+
+export default PublicFooter;
+ 
+================================================== 
+FILE: F:\frontend\src\components\public\PublicHeader.jsx 
+================================================== 
+// src/components/public/PublicHeader.jsx
+import { useState } from "react";
+import { NavLink, useLocation } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
+import { ORG_NAME } from "../../utils/constants";
+import logo from "../../assets/images/image.png";
+
+const NAV_LINKS = [
+  { to: "/", label: "Home", end: true },
+  { to: "/about", label: "About Us" },
+  { to: "/contact", label: "Contact Us" },
+];
+
+function PublicHeader() {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const { isAuthenticated } = useAuth();
+  const location = useLocation();
+  const isAuthTabActive = location.pathname === "/login" || location.pathname === "/register";
+
+  return (
+    <header className="public-header">
+      <div className="public-header-inner">
+        <NavLink to="/" className="public-header-logo-link" aria-label="Go to home page">
+          <img src={logo} alt={ORG_NAME} className="public-header-logo-img" />
+        </NavLink>
+
+        <button
+          className="public-header-menu-toggle"
+          aria-expanded={menuOpen}
+          aria-controls="public-navigation"
+          aria-label="Toggle navigation menu"
+          onClick={() => setMenuOpen((v) => !v)}
+        >
+          <span />
+          <span />
+          <span />
+        </button>
+
+        <div className={`public-header-right ${menuOpen ? "is-open" : ""}`}>
+          <nav id="public-navigation" className="public-nav" aria-label="Primary">
+            <ul>
+              {NAV_LINKS.map((link) => (
+                <li key={link.to}>
+                  <NavLink
+                    to={link.to}
+                    end={link.end}
+                    className={({ isActive }) => (isActive ? "is-active" : "")}
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    {link.label}
+                  </NavLink>
+                </li>
+              ))}
+
+              {isAuthenticated ? (
+                <li>
+                  <NavLink
+                    to="/app/dashboard"
+                    className={({ isActive }) => (isActive ? "is-active" : "")}
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    Dashboard
+                  </NavLink>
+                </li>
+              ) : (
+                <li>
+                  <NavLink
+                    to="/login"
+                    className={isAuthTabActive ? "is-active" : ""}
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    Login / Register
+                  </NavLink>
+                </li>
+              )}
+            </ul>
+          </nav>
+        </div>
+      </div>
+    </header>
+  );
+}
+
+export default PublicHeader;
+ 
+================================================== 
+FILE: F:\frontend\src\components\public\PublicLayout.jsx 
+================================================== 
+// src/components/public/PublicLayout.jsx
+import { Outlet } from "react-router-dom";
+import UtilityBar from "./UtilityBar";
+import PublicHeader from "./PublicHeader";
+import PublicFooter from "./PublicFooter";
+
+function PublicLayout() {
+  return (
+    <>
+      <a href="#main-content" className="skip-link">
+        Skip to main content
+      </a>
+      <UtilityBar />
+      <PublicHeader />
+      <main id="main-content">
+        <Outlet />
+      </main>
+      <PublicFooter />
+    </>
+  );
+}
+
+export default PublicLayout;
+ 
+================================================== 
+FILE: F:\frontend\src\components\public\UtilityBar.jsx 
+================================================== 
+// src/components/public/UtilityBar.jsx
+import { useEffect, useState } from "react";
+
+function UtilityBar() {
+  const [fontScale, setFontScale] = useState(100);
+
+  useEffect(() => {
+    document.documentElement.style.fontSize = `${fontScale}%`;
+  }, [fontScale]);
+
+  return (
+    <div className="utility-bar" role="region" aria-label="Utility bar">
+      <div className="utility-bar-inner">
+        <span className="utility-bar-item">Government of India</span>
+        <div className="utility-bar-controls">
+          <span className="utility-bar-label">Text size</span>
+          <button type="button" aria-label="Decrease text size" onClick={() => setFontScale((s) => Math.max(85, s - 10))}>
+            A-
+          </button>
+          <button type="button" aria-label="Reset text size" onClick={() => setFontScale(100)}>
+            A
+          </button>
+          <button type="button" aria-label="Increase text size" onClick={() => setFontScale((s) => Math.min(130, s + 10))}>
+            A+
+          </button>
+          <a href="/accessibility">Accessibility</a>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default UtilityBar;
+ 
+================================================== 
+FILE: F:\frontend\src\components\wells\WellDetails.jsx 
+================================================== 
+// src/components/wells/WellDetails.jsx
+import { X } from "lucide-react";
+import { CONFIDENCE_LEVELS } from "../../utils/constants";
+
+const PLACEHOLDER_ORIGINAL_IMAGE = "https://placehold.co/500x350?text=Original+Image";
+const PLACEHOLDER_DETECTION_IMAGE = "https://placehold.co/500x350?text=Detection+Result+(Bounding+Box)";
+
+function getConfidenceLabel(confidence) {
+  if (confidence >= CONFIDENCE_LEVELS.HIGH) return { label: "High", color: "#16a34a" };
+  if (confidence >= CONFIDENCE_LEVELS.MEDIUM) return { label: "Medium", color: "#f59e0b" };
+  return { label: "Low", color: "#dc2626" };
+}
+
+function WellDetails({ well, onClose }) {
+  if (!well) return null;
+
+  const { label, color } = getConfidenceLabel(well.confidence);
+
+  return (
+    <div className="well-details-overlay" onClick={onClose}>
+      <div className="well-details-modal" onClick={(e) => e.stopPropagation()}>
+        <div className="well-details-header">
+          <h3>Well Details — {well.id}</h3>
+          <button className="modal-close-btn" onClick={onClose} aria-label="Close">
+            <X size={20} />
+          </button>
+        </div>
+
+        <div className="well-details-body">
+          <div className="well-details-info">
+            <div className="detail-row">
+              <span className="detail-label">Well ID</span>
+              <span className="detail-value">{well.id}</span>
+            </div>
+            <div className="detail-row">
+              <span className="detail-label">Area / Village</span>
+              <span className="detail-value">{well.village}, {well.taluka}</span>
+            </div>
+            <div className="detail-row">
+              <span className="detail-label">District</span>
+              <span className="detail-value">{well.district}</span>
+            </div>
+            <div className="detail-row">
+              <span className="detail-label">Coordinates</span>
+              <span className="detail-value">{well.latitude}, {well.longitude}</span>
+            </div>
+            <div className="detail-row">
+              <span className="detail-label">Confidence Score</span>
+              <span className="detail-value">
+                {Math.round(well.confidence * 100)}%{" "}
+                <span className="confidence-badge" style={{ backgroundColor: `${color}1A`, color }}>
+                  {label}
+                </span>
+              </span>
+            </div>
+            <div className="detail-row">
+              <span className="detail-label">Detection Date</span>
+              <span className="detail-value">{well.detectedOn}</span>
+            </div>
+            <div className="detail-row">
+              <span className="detail-label">Status</span>
+              <span className="detail-value">{well.status}</span>
+            </div>
+          </div>
+
+          <div className="well-details-images">
+            <div className="image-block">
+              <p className="image-block-label">Original Image</p>
+              <img src={PLACEHOLDER_ORIGINAL_IMAGE} alt="Original aerial view" />
+            </div>
+            <div className="image-block">
+              <p className="image-block-label">Detection Result</p>
+              <img src={PLACEHOLDER_DETECTION_IMAGE} alt="Detection with bounding box" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default WellDetails; 
+================================================== 
+FILE: F:\frontend\src\components\wells\WellTable.jsx 
+================================================== 
+// src/components/wells/WellTable.jsx
+import { useState, useMemo } from "react";
+import { ArrowUpDown } from "lucide-react";
+
+function WellTable({ wells, onRowClick }) {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("All");
+  const [sortConfig, setSortConfig] = useState({ key: "id", direction: "asc" });
+
+  const handleSort = (key) => {
+    setSortConfig((prev) => ({
+      key,
+      direction: prev.key === key && prev.direction === "asc" ? "desc" : "asc",
+    }));
+  };
+
+  const filteredAndSortedWells = useMemo(() => {
+    let result = wells.filter((well) => {
+      const matchesSearch =
+        well.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        well.village.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesStatus = statusFilter === "All" || well.status === statusFilter;
+      return matchesSearch && matchesStatus;
+    });
+
+    result.sort((a, b) => {
+      const valA = a[sortConfig.key];
+      const valB = b[sortConfig.key];
+      if (valA < valB) return sortConfig.direction === "asc" ? -1 : 1;
+      if (valA > valB) return sortConfig.direction === "asc" ? 1 : -1;
+      return 0;
+    });
+
+    return result;
+  }, [wells, searchTerm, statusFilter, sortConfig]);
+
+  const statusOptions = ["All", ...new Set(wells.map((w) => w.status))];
+
+  return (
+    <div className="well-table-wrapper">
+      <div className="table-controls">
+        <input
+          type="text"
+          className="table-search-input"
+          placeholder="Search by Well ID or Village..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+        <select
+          className="table-filter-select"
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value)}
+        >
+          {statusOptions.map((status) => (
+            <option key={status} value={status}>{status}</option>
+          ))}
+        </select>
+      </div>
+
+      <div className="table-scroll-container">
+        <table className="wells-table">
+          <thead>
+            <tr>
+              <th onClick={() => handleSort("id")}>Well ID <ArrowUpDown size={12} /></th>
+              <th onClick={() => handleSort("latitude")}>Latitude <ArrowUpDown size={12} /></th>
+              <th onClick={() => handleSort("longitude")}>Longitude <ArrowUpDown size={12} /></th>
+              <th onClick={() => handleSort("confidence")}>Confidence <ArrowUpDown size={12} /></th>
+              <th onClick={() => handleSort("status")}>Status <ArrowUpDown size={12} /></th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredAndSortedWells.length === 0 ? (
+              <tr>
+                <td colSpan={5} className="table-empty-row">No wells match your search/filter.</td>
+              </tr>
+            ) : (
+              filteredAndSortedWells.map((well) => (
+                <tr key={well.id} onClick={() => onRowClick(well)} className="table-row-clickable">
+                  <td>{well.id}</td>
+                  <td>{well.latitude}</td>
+                  <td>{well.longitude}</td>
+                  <td>{Math.round(well.confidence * 100)}%</td>
+                  <td><span className="status-pill">{well.status}</span></td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+export default WellTable; 
+================================================== 
+FILE: F:\frontend\src\context\AuthContext.jsx 
+================================================== 
+// src/context/AuthContext.jsx
+import { createContext, useContext, useState, useEffect } from "react";
+
+const AuthContext = createContext(null);
+
+export function AuthProvider({ children }) {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  // On app load, check if a user session was saved (mock persistence via localStorage)
+  useEffect(() => {
+    const savedUser = localStorage.getItem("agriWellUser");
+    if (savedUser) {
+      setUser(JSON.parse(savedUser));
+    }
+    setLoading(false);
+  }, []);
+
+  const login = (userData) => {
+    setUser(userData);
+    localStorage.setItem("agriWellUser", JSON.stringify(userData));
+  };
+
+  const logout = () => {
+    setUser(null);
+    localStorage.removeItem("agriWellUser");
+  };
+
+  const value = {
+    user,
+    isAuthenticated: !!user,
+    loading,
+    login,
+    logout,
+  };
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+}
+
+// Custom hook for easy access: const { user, login, logout } = useAuth();
+export function useAuth() {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error("useAuth must be used within an AuthProvider");
+  }
+  return context;
+} 
+================================================== 
+FILE: F:\frontend\src\data\mockWells.js 
+================================================== 
+// src/data/mockWells.js
+// Realistic mock well detection data.
+// Later, this entire file can be deleted once a real backend provides this data —
+// nothing else needs to change except the service functions that read it.
+
+const mockWells = [
+  { id: "W001", latitude: 21.1458, longitude: 79.0882, confidence: 0.87, status: "Detected", village: "Wadi", taluka: "Nagpur Rural", district: "Nagpur", detectedOn: "2026-07-01" },
+  { id: "W002", latitude: 21.1502, longitude: 79.0925, confidence: 0.93, status: "Detected", village: "Kalmeshwar", taluka: "Kalmeshwar", district: "Nagpur", detectedOn: "2026-07-01" },
+  { id: "W003", latitude: 21.1390, longitude: 79.0810, confidence: 0.62, status: "Detected", village: "Wadi", taluka: "Nagpur Rural", district: "Nagpur", detectedOn: "2026-07-02" },
+  { id: "W004", latitude: 21.1600, longitude: 79.1000, confidence: 0.45, status: "Detected", village: "Katol", taluka: "Katol", district: "Nagpur", detectedOn: "2026-07-02" },
+  { id: "W005", latitude: 21.1325, longitude: 79.0750, confidence: 0.78, status: "Detected", village: "Hingna", taluka: "Hingna", district: "Nagpur", detectedOn: "2026-07-03" },
+  { id: "W006", latitude: 21.1700, longitude: 79.1100, confidence: 0.91, status: "Detected", village: "Kamptee", taluka: "Kamptee", district: "Nagpur", detectedOn: "2026-07-03" },
+  { id: "W007", latitude: 21.1210, longitude: 79.0690, confidence: 0.55, status: "Detected", village: "Hingna", taluka: "Hingna", district: "Nagpur", detectedOn: "2026-07-04" },
+  { id: "W008", latitude: 21.1550, longitude: 79.0950, confidence: 0.88, status: "Detected", village: "Kalmeshwar", taluka: "Kalmeshwar", district: "Nagpur", detectedOn: "2026-07-04" },
+  { id: "W009", latitude: 21.1480, longitude: 79.0870, confidence: 0.35, status: "Detected", village: "Wadi", taluka: "Nagpur Rural", district: "Nagpur", detectedOn: "2026-07-05" },
+  { id: "W010", latitude: 21.1650, longitude: 79.1050, confidence: 0.72, status: "Detected", village: "Katol", taluka: "Katol", district: "Nagpur", detectedOn: "2026-07-05" },
+  { id: "W011", latitude: 21.1280, longitude: 79.0730, confidence: 0.95, status: "Detected", village: "Hingna", taluka: "Hingna", district: "Nagpur", detectedOn: "2026-07-06" },
+  { id: "W012", latitude: 21.1750, longitude: 79.1150, confidence: 0.68, status: "Detected", village: "Kamptee", taluka: "Kamptee", district: "Nagpur", detectedOn: "2026-07-06" },
+];
+
+export default mockWells; 
+================================================== 
+FILE: F:\frontend\src\layouts\MainLayout.jsx 
+================================================== 
+// src/layouts/MainLayout.jsx
+import { useState } from "react";
+import { Outlet } from "react-router-dom";
+import Navbar from "../components/common/Navbar";
+import Sidebar from "../components/common/Sidebar";
+
+function MainLayout() {
+  // Controls the mobile off-canvas sidebar (slide-in overlay on small screens)
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+  // Controls whether the sidebar is shown/hidden on desktop/tablet
+  const [isDesktopSidebarVisible, setIsDesktopSidebarVisible] = useState(true);
+
+  // Single toggle button in the navbar drives both behaviors depending on screen size
+  const toggleSidebar = () => {
+    if (window.innerWidth < 768) {
+      setIsMobileSidebarOpen((prev) => !prev);
+    } else {
+      setIsDesktopSidebarVisible((prev) => !prev);
+    }
+  };
+
+  return (
+    <div className="app-layout">
+      <Navbar onMenuClick={toggleSidebar} />
+      <div className="app-body">
+        <Sidebar
+          isMobileOpen={isMobileSidebarOpen}
+          isDesktopVisible={isDesktopSidebarVisible}
+          onMobileClose={() => setIsMobileSidebarOpen(false)}
+        />
+        <main className="main-content">
+          <Outlet />
+        </main>
+      </div>
+    </div>
+  );
+}
+
+export default MainLayout; 
+================================================== 
+FILE: F:\frontend\src\pages\Dashboard.jsx 
+================================================== 
+// src/pages/Dashboard.jsx
+import { useEffect, useState } from "react";
+import { Layers, MapPin, Target, Image } from "lucide-react";
+import { getDashboardStats, getWellsByArea, getConfidenceBreakdown } from "../services/wellService";
+import DashboardCharts from "../components/charts/DashboardCharts";
+import Loader from "../components/common/Loader";
+import ErrorMessage from "../components/common/ErrorMessage";
+
+function Dashboard() {
+  const [stats, setStats] = useState(null);
+  const [areaData, setAreaData] = useState([]);
+  const [confidenceData, setConfidenceData] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    async function loadDashboardData() {
+      setIsLoading(true);
+      setError("");
+      try {
+        const [statsResult, areaResult, confidenceResult] = await Promise.all([
+          getDashboardStats(),
+          getWellsByArea(),
+          getConfidenceBreakdown(),
+        ]);
+        setStats(statsResult);
+        setAreaData(areaResult);
+        setConfidenceData(confidenceResult);
+      } catch (err) {
+        setError("Unable to load dashboard data. Please try again later.");
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    loadDashboardData();
+  }, []);
+
+  if (isLoading) return <Loader message="Loading dashboard..." />;
+  if (error) return <ErrorMessage message={error} />;
+  if (!stats) return null;
+
+  const statCards = [
+    { label: "Total Wells Detected", value: stats.totalWells, icon: Target, color: "#14532d" },
+    { label: "Selected Area", value: stats.selectedArea, icon: MapPin, color: "#1d4ed8" },
+    { label: "Detection Accuracy", value: stats.detectionAccuracy, icon: Layers, color: "#b45309" },
+    { label: "Processed Images", value: stats.processedImages, icon: Image, color: "#7c3aed" },
+  ];
+
+  return (
+    <div className="dashboard-page">
+      <h2 className="page-heading">Dashboard</h2>
+      <p className="page-subheading">Overview of agricultural well detection activity</p>
+
+      <div className="stat-cards-grid">
+        {statCards.map(({ label, value, icon: Icon, color }) => (
+          <div className="stat-card" key={label}>
+            <div className="stat-icon" style={{ backgroundColor: `${color}1A`, color }}>
+              <Icon size={22} />
+            </div>
+            <div>
+              <p className="stat-value">{value}</p>
+              <p className="stat-label">{label}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <DashboardCharts areaData={areaData} confidenceData={confidenceData} />
+    </div>
+  );
+}
+
+export default Dashboard; 
+================================================== 
+FILE: F:\frontend\src\pages\MapView.jsx 
+================================================== 
+// src/pages/MapView.jsx
+import { useEffect, useState } from "react";
+import { getAllWells } from "../services/wellService";
+import WellMap from "../components/map/WellMap";
+import Loader from "../components/common/Loader";
+import ErrorMessage from "../components/common/ErrorMessage";
+
+function MapView() {
+  const [wells, setWells] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    async function loadWells() {
+      setIsLoading(true);
+      setError("");
+      try {
+        const data = await getAllWells();
+        setWells(data);
+      } catch (err) {
+        setError("Unable to load well locations. Please try again later.");
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    loadWells();
+  }, []);
+
+  if (isLoading) return <Loader message="Loading map data..." />;
+  if (error) return <ErrorMessage message={error} />;
+
+  return (
+    <div className="map-page">
+      <h2 className="page-heading">GIS Map View</h2>
+      <p className="page-subheading">
+        {wells.length} wells plotted — click a marker to view details
+      </p>
+      <WellMap wells={wells} />
+    </div>
+  );
+}
+
+export default MapView; 
+================================================== 
+FILE: F:\frontend\src\pages\NotFound.jsx 
+================================================== 
+// src/pages/NotFound.jsx
+// Rendered inside PublicLayout (via the catch-all route), so it still
+// gets the header/footer around it.
+import { Link } from "react-router-dom";
+
+function NotFound() {
+  return (
+    <div className="public-container public-section static-page">
+      <h1 className="static-page-heading">Page Not Found</h1>
+      <p className="section-body">
+        The page you are looking for does not exist or has been moved.
+      </p>
+      <Link to="/" className="public-btn-secondary">
+        Return to Home
+      </Link>
+    </div>
+  );
+}
+
+export default NotFound;
+ 
+================================================== 
+FILE: F:\frontend\src\pages\Profile.jsx 
+================================================== 
+// src/pages/Profile.jsx
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { LogOut, Edit3, KeyRound } from "lucide-react";
+import { useAuth } from "../context/AuthContext";
+
+function Profile() {
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const [actionMessage, setActionMessage] = useState("");
+
+  const handleLogout = () => {
+    logout();
+    navigate("/");
+  };
+
+  const handleEditProfile = () => {
+    // Mock — real edit form/API call would go here later
+    setActionMessage("Edit profile is not yet connected to a backend. This is a placeholder.");
+    setTimeout(() => setActionMessage(""), 4000);
+  };
+
+  const handleChangePassword = () => {
+    // Mock — real change-password form/API call would go here later
+    setActionMessage("Change password is not yet connected to a backend. This is a placeholder.");
+    setTimeout(() => setActionMessage(""), 4000);
+  };
+
+  return (
+    <div className="profile-page">
+      <h2 className="page-heading">Profile</h2>
+      <p className="page-subheading">Your account information</p>
+
+      {actionMessage && <div className="action-message-banner">{actionMessage}</div>}
+
+      <div className="profile-card">
+        <div className="profile-avatar">
+          {user?.fullName ? user.fullName.charAt(0).toUpperCase() : "U"}
+        </div>
+
+        <div className="profile-info">
+          <div className="detail-row">
+            <span className="detail-label">Full Name</span>
+            <span className="detail-value">{user?.fullName || "—"}</span>
+          </div>
+          <div className="detail-row">
+            <span className="detail-label">Email</span>
+            <span className="detail-value">{user?.email || "—"}</span>
+          </div>
+          <div className="detail-row">
+            <span className="detail-label">Organization</span>
+            <span className="detail-value">{user?.organization || "—"}</span>
+          </div>
+          <div className="detail-row">
+            <span className="detail-label">Mobile</span>
+            <span className="detail-value">{user?.mobile || "—"}</span>
+          </div>
+          <div className="detail-row">
+            <span className="detail-label">Role</span>
+            <span className="detail-value">Researcher</span>
+          </div>
+        </div>
+
+        <div className="profile-actions">
+          <button className="secondary-btn" onClick={handleEditProfile}>
+            <Edit3 size={16} /> Edit Profile
+          </button>
+          <button className="secondary-btn" onClick={handleChangePassword}>
+            <KeyRound size={16} /> Change Password
+          </button>
+          <button className="logout-danger-btn" onClick={handleLogout}>
+            <LogOut size={16} /> Logout
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default Profile; 
+================================================== 
+FILE: F:\frontend\src\pages\Reports.jsx 
+================================================== 
+// src/pages/Reports.jsx
+import { useEffect, useState } from "react";
+import { FileText, Download, FileSpreadsheet } from "lucide-react";
+import { getReportSummary } from "../services/reportService";
+import { getAllWells } from "../services/wellService";
+import { exportWellsToCSV, generateReport } from "../services/exportService";
+import WellMap from "../components/map/WellMap";
+import Loader from "../components/common/Loader";
+import ErrorMessage from "../components/common/ErrorMessage";
+
+function Reports() {
+  const [summary, setSummary] = useState(null);
+  const [wells, setWells] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [actionMessage, setActionMessage] = useState("");
+
+  useEffect(() => {
+    async function loadReportData() {
+      setIsLoading(true);
+      setError("");
+      try {
+        const [summaryResult, wellsResult] = await Promise.all([
+          getReportSummary(),
+          getAllWells(),
+        ]);
+        setSummary(summaryResult);
+        setWells(wellsResult);
+      } catch (err) {
+        setError("Unable to load report data. Please try again later.");
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    loadReportData();
+  }, []);
+
+  if (isLoading) return <Loader message="Loading report data..." />;
+  if (error) return <ErrorMessage message={error} />;
+
+  const handleGenerateReport = async () => {
+    setIsGenerating(true);
+    setActionMessage("");
+    try {
+      const report = await generateReport(wells);
+      setActionMessage(`Report ${report.reportId} generated successfully.`);
+    } catch (err) {
+      setActionMessage(err.message || "Failed to generate report.");
+    } finally {
+      setIsGenerating(false);
+      setTimeout(() => setActionMessage(""), 4000);
+    }
+  };
+
+  const handleDownloadPDF = () => {
+    // Mock — real PDF generation requires backend rendering (or a PDF lib later)
+    setActionMessage("PDF download is not yet connected to a backend. This is a placeholder.");
+    setTimeout(() => setActionMessage(""), 4000);
+  };
+
+  const handleDownloadCSV = () => {
+    try {
+      exportWellsToCSV(wells, "well-detection-report.csv");
+      setActionMessage("CSV downloaded successfully.");
+    } catch (err) {
+      setActionMessage(err.message);
+    }
+    setTimeout(() => setActionMessage(""), 3000);
+  };
+
+  return (
+    <div className="reports-page">
+      <h2 className="page-heading">Reports</h2>
+      <p className="page-subheading">Generate and download detection reports</p>
+
+      {actionMessage && <div className="action-message-banner">{actionMessage}</div>}
+
+      <div className="report-summary-card">
+        <h3 className="section-title">Detection Summary</h3>
+        <div className="report-summary-grid">
+          <div className="report-summary-item">
+            <span className="detail-label">Total Wells</span>
+            <span className="detail-value">{summary.totalWells}</span>
+          </div>
+          <div className="report-summary-item">
+            <span className="detail-label">High Confidence</span>
+            <span className="detail-value">{summary.highConfidence}</span>
+          </div>
+          <div className="report-summary-item">
+            <span className="detail-label">Medium Confidence</span>
+            <span className="detail-value">{summary.mediumConfidence}</span>
+          </div>
+          <div className="report-summary-item">
+            <span className="detail-label">Low Confidence</span>
+            <span className="detail-value">{summary.lowConfidence}</span>
+          </div>
+          <div className="report-summary-item">
+            <span className="detail-label">Area(s) Covered</span>
+            <span className="detail-value">{summary.areasCovered}</span>
+          </div>
+          <div className="report-summary-item">
+            <span className="detail-label">Latest Detection Date</span>
+            <span className="detail-value">{summary.latestDetectionDate}</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="report-map-card">
+        <h3 className="section-title">Map Preview</h3>
+        <WellMap wells={wells} />
+      </div>
+
+      <div className="report-actions-row">
+        <button className="start-detection-btn" onClick={handleGenerateReport} disabled={isGenerating}>
+          <FileText size={16} /> {isGenerating ? "Generating..." : "Generate Report"}
+        </button>
+        <button className="secondary-btn" onClick={handleDownloadPDF}>
+          <Download size={16} /> Download PDF
+        </button>
+        <button className="secondary-btn" onClick={handleDownloadCSV}>
+          <FileSpreadsheet size={16} /> Download CSV
+        </button>
+      </div>
+    </div>
+  );
+}
+
+export default Reports; 
+================================================== 
+FILE: F:\frontend\src\pages\Results.jsx 
+================================================== 
+// src/pages/Results.jsx
+import { useEffect, useState } from "react";
+import { Download, FileText, Map as MapIcon } from "lucide-react";
+import { getAllWells } from "../services/wellService";
+import { exportWellsToCSV, generateReport } from "../services/exportService";
+import { CONFIDENCE_LEVELS } from "../utils/constants";
+import WellTable from "../components/wells/WellTable";
+import WellDetails from "../components/wells/WellDetails";
+import WellMap from "../components/map/WellMap";
+import Loader from "../components/common/Loader";
+import ErrorMessage from "../components/common/ErrorMessage";
+
+function Results() {
+  const [wells, setWells] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  const [selectedWell, setSelectedWell] = useState(null);
+  const [showMap, setShowMap] = useState(false);
+
+  const [isGeneratingReport, setIsGeneratingReport] = useState(false);
+  const [actionMessage, setActionMessage] = useState("");
+
+  useEffect(() => {
+    async function loadWells() {
+      setIsLoading(true);
+      setError("");
+      try {
+        const data = await getAllWells();
+        setWells(data);
+      } catch (err) {
+        setError("Unable to load detection results. Please try again later.");
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    loadWells();
+  }, []);
+
+  if (isLoading) return <Loader message="Loading results..." />;
+  if (error) return <ErrorMessage message={error} />;
+
+  // Summary counts derived from the loaded wells
+  const totalWells = wells.length;
+  const highConfidence = wells.filter((w) => w.confidence >= CONFIDENCE_LEVELS.HIGH).length;
+  const mediumConfidence = wells.filter(
+    (w) => w.confidence >= CONFIDENCE_LEVELS.MEDIUM && w.confidence < CONFIDENCE_LEVELS.HIGH
+  ).length;
+  const lowConfidence = wells.filter((w) => w.confidence < CONFIDENCE_LEVELS.MEDIUM).length;
+
+  const summaryCards = [
+    { label: "Total Wells", value: totalWells, color: "#14532d" },
+    { label: "High Confidence", value: highConfidence, color: "#16a34a" },
+    { label: "Medium Confidence", value: mediumConfidence, color: "#f59e0b" },
+    { label: "Low Confidence", value: lowConfidence, color: "#dc2626" },
+  ];
+
+  const handleDownloadCSV = () => {
+    try {
+      exportWellsToCSV(wells);
+      setActionMessage("CSV downloaded successfully.");
+    } catch (err) {
+      setActionMessage(err.message);
+    }
+    setTimeout(() => setActionMessage(""), 3000);
+  };
+
+  const handleGenerateReport = async () => {
+    setIsGeneratingReport(true);
+    setActionMessage("");
+    try {
+      const report = await generateReport(wells);
+      setActionMessage(`Report ${report.reportId} generated successfully.`);
+    } catch (err) {
+      setActionMessage(err.message || "Failed to generate report.");
+    } finally {
+      setIsGeneratingReport(false);
+      setTimeout(() => setActionMessage(""), 4000);
+    }
+  };
+
+  return (
+    <div className="results-page">
+      <h2 className="page-heading">Detection Results</h2>
+      <p className="page-subheading">Full breakdown of all detected wells</p>
+
+      {actionMessage && <div className="action-message-banner">{actionMessage}</div>}
+
+      <div className="stat-cards-grid">
+        {summaryCards.map(({ label, value, color }) => (
+          <div className="stat-card" key={label}>
+            <div>
+              <p className="stat-value" style={{ color }}>{value}</p>
+              <p className="stat-label">{label}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="results-actions-row">
+        <button className="secondary-btn" onClick={() => setShowMap((prev) => !prev)}>
+          <MapIcon size={16} /> {showMap ? "Hide Map" : "View Map"}
+        </button>
+        <button className="secondary-btn" onClick={handleDownloadCSV}>
+          <Download size={16} /> Download CSV
+        </button>
+        <button className="start-detection-btn" onClick={handleGenerateReport} disabled={isGeneratingReport}>
+          <FileText size={16} /> {isGeneratingReport ? "Generating..." : "Generate Report"}
+        </button>
+      </div>
+
+      {showMap && (
+        <div className="results-map-block">
+          <WellMap wells={wells} />
+        </div>
+      )}
+
+      <WellTable wells={wells} onRowClick={setSelectedWell} />
+
+      {selectedWell && (
+        <WellDetails well={selectedWell} onClose={() => setSelectedWell(null)} />
+      )}
+    </div>
+  );
+}
+
+export default Results; 
+================================================== 
+FILE: F:\frontend\src\pages\Settings.jsx 
+================================================== 
+// src/pages/Settings.jsx
+import { useState } from "react";
+import { Save, RotateCcw } from "lucide-react";
+
+const DEFAULT_SETTINGS = {
+  mapLayer: "OpenStreetMap",
+  theme: "Light",
+  language: "English",
+  defaultDistrict: "Nagpur",
+  resultsPerPage: "10",
+  emailNotifications: true,
+  autoRefreshDashboard: false,
+  soundAlerts: false,
+};
+
+function Settings() {
+  const [settings, setSettings] = useState(DEFAULT_SETTINGS);
+  const [saveMessage, setSaveMessage] = useState("");
+
+  const updateSetting = (key, value) => {
+    setSettings((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const handleSave = () => {
+    // Mock save — later this becomes: await api.put("/settings", settings)
+    setSaveMessage("Preferences saved successfully.");
+    setTimeout(() => setSaveMessage(""), 3000);
+  };
+
+  const handleReset = () => {
+    setSettings(DEFAULT_SETTINGS);
+    setSaveMessage("Preferences reset to default.");
+    setTimeout(() => setSaveMessage(""), 3000);
+  };
+
+  return (
+    <div className="settings-page">
+      <h2 className="page-heading">Settings</h2>
+      <p className="page-subheading">Application preferences</p>
+
+      {saveMessage && <div className="action-message-banner">{saveMessage}</div>}
+
+      <div className="settings-card">
+        <h3 className="section-title">Map & Detection</h3>
+
+        <div className="settings-row">
+          <div>
+            <p className="detail-value">Default Map Layer</p>
+            <p className="detail-label">Layer shown by default when opening the map</p>
+          </div>
+          <select
+            className="table-filter-select"
+            value={settings.mapLayer}
+            onChange={(e) => updateSetting("mapLayer", e.target.value)}
+          >
+            <option value="OpenStreetMap">OpenStreetMap</option>
+            <option value="Satellite">Satellite</option>
+          </select>
+        </div>
+
+        <div className="settings-row">
+          <div>
+            <p className="detail-value">Default District</p>
+            <p className="detail-label">Pre-filled district when starting a new detection</p>
+          </div>
+          <select
+            className="table-filter-select"
+            value={settings.defaultDistrict}
+            onChange={(e) => updateSetting("defaultDistrict", e.target.value)}
+          >
+            <option value="Nagpur">Nagpur</option>
+            <option value="Wardha">Wardha</option>
+            <option value="Chandrapur">Chandrapur</option>
+            <option value="Amravati">Amravati</option>
+          </select>
+        </div>
+
+        <div className="settings-row">
+          <div>
+            <p className="detail-value">Results Per Page</p>
+            <p className="detail-label">Number of wells shown per page in tables</p>
+          </div>
+          <select
+            className="table-filter-select"
+            value={settings.resultsPerPage}
+            onChange={(e) => updateSetting("resultsPerPage", e.target.value)}
+          >
+            <option value="10">10</option>
+            <option value="25">25</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
+          </select>
+        </div>
+      </div>
+
+      <div className="settings-card">
+        <h3 className="section-title">Appearance & Language</h3>
+
+        <div className="settings-row">
+          <div>
+            <p className="detail-value">Theme</p>
+            <p className="detail-label">Application color theme</p>
+          </div>
+          <select
+            className="table-filter-select"
+            value={settings.theme}
+            onChange={(e) => updateSetting("theme", e.target.value)}
+          >
+            <option value="Light">Light</option>
+            <option value="Dark">Dark (coming soon)</option>
+          </select>
+        </div>
+
+        <div className="settings-row">
+          <div>
+            <p className="detail-value">Language</p>
+            <p className="detail-label">Interface display language</p>
+          </div>
+          <select
+            className="table-filter-select"
+            value={settings.language}
+            onChange={(e) => updateSetting("language", e.target.value)}
+          >
+            <option value="English">English</option>
+            <option value="Hindi">Hindi (coming soon)</option>
+            <option value="Marathi">Marathi (coming soon)</option>
+          </select>
+        </div>
+      </div>
+
+      <div className="settings-card">
+        <h3 className="section-title">Notifications</h3>
+
+        <div className="settings-row">
+          <div>
+            <p className="detail-value">Email Notifications</p>
+            <p className="detail-label">Get notified when a detection run completes</p>
+          </div>
+          <label className="checkbox-label">
+            <input
+              type="checkbox"
+              checked={settings.emailNotifications}
+              onChange={() => updateSetting("emailNotifications", !settings.emailNotifications)}
+            />
+            Enabled
+          </label>
+        </div>
+
+        <div className="settings-row">
+          <div>
+            <p className="detail-value">Sound Alerts</p>
+            <p className="detail-label">Play a sound when processing finishes</p>
+          </div>
+          <label className="checkbox-label">
+            <input
+              type="checkbox"
+              checked={settings.soundAlerts}
+              onChange={() => updateSetting("soundAlerts", !settings.soundAlerts)}
+            />
+            Enabled
+          </label>
+        </div>
+
+        <div className="settings-row">
+          <div>
+            <p className="detail-value">Auto-Refresh Dashboard</p>
+            <p className="detail-label">Automatically refresh dashboard stats every few minutes</p>
+          </div>
+          <label className="checkbox-label">
+            <input
+              type="checkbox"
+              checked={settings.autoRefreshDashboard}
+              onChange={() => updateSetting("autoRefreshDashboard", !settings.autoRefreshDashboard)}
+            />
+            Enabled
+          </label>
+        </div>
+      </div>
+
+      <div className="settings-actions-row">
+        <button className="start-detection-btn" onClick={handleSave}>
+          <Save size={16} /> Save Preferences
+        </button>
+        <button className="secondary-btn" onClick={handleReset}>
+          <RotateCcw size={16} /> Reset to Default
+        </button>
+      </div>
+
+      <p className="settings-note">
+        These preferences are stored locally for now. Once connected to a backend,
+        they can be saved per-user via a <code>/settings</code> endpoint.
+      </p>
+    </div>
+  );
+}
+
+export default Settings; 
+================================================== 
+FILE: F:\frontend\src\pages\WellDetection.jsx 
+================================================== 
+// src/pages/WellDetection.jsx
+import { useState } from "react";
+import { Search, PlayCircle } from "lucide-react";
+import { runDetection } from "../services/detectionService";
+import WellMap from "../components/map/WellMap";
+import Loader from "../components/common/Loader";
+import ErrorMessage from "../components/common/ErrorMessage";
+import { useNavigate } from "react-router-dom";
+
+// Workflow stages, matches the spec's step list
+const STAGES = {
+  SELECT: "select",
+  PREVIEW: "preview",
+  PROCESSING: "processing",
+  COMPLETED: "completed",
+};
+
+const AREA_TYPES = ["Village", "Taluka", "District", "Custom Area"];
+
+function WellDetection() {
+  const navigate = useNavigate();
+
+  const [areaType, setAreaType] = useState("District");
+  const [formData, setFormData] = useState({
+    district: "",
+    taluka: "",
+    village: "",
+    latitude: "",
+    longitude: "",
+  });
+
+  const [stage, setStage] = useState(STAGES.SELECT);
+  const [error, setError] = useState("");
+  const [detectedWells, setDetectedWells] = useState([]);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handlePreview = (e) => {
+    e.preventDefault();
+    setError("");
+
+    if (!formData.district.trim()) {
+      setError("Please enter at least a District to preview the area.");
+      return;
+    }
+
+    setStage(STAGES.PREVIEW);
+  };
+
+  const handleStartDetection = async () => {
+    setError("");
+    setStage(STAGES.PROCESSING);
+
+    try {
+      const results = await runDetection(formData);
+      setDetectedWells(results);
+      setStage(STAGES.COMPLETED);
+    } catch (err) {
+      setError(err.message || "Detection failed. Please try again.");
+      setStage(STAGES.PREVIEW); // fall back so user can retry
+    }
+  };
+
+  const handleReset = () => {
+    setStage(STAGES.SELECT);
+    setDetectedWells([]);
+    setError("");
+  };
+
+  return (
+    <div className="detection-page">
+      <h2 className="page-heading">Agricultural Well Detection</h2>
+      <p className="page-subheading">Select an area to run automated well detection</p>
+
+      {error && <ErrorMessage message={error} />}
+
+      {/* ---- Stage: SELECT ---- */}
+      {stage === STAGES.SELECT && (
+        <div className="detection-form-card">
+          <div className="area-type-tabs">
+            {AREA_TYPES.map((type) => (
+              <button
+                key={type}
+                type="button"
+                className={`area-type-tab ${areaType === type ? "area-type-tab-active" : ""}`}
+                onClick={() => setAreaType(type)}
+              >
+                {type}
+              </button>
+            ))}
+          </div>
+
+          <form onSubmit={handlePreview} className="detection-form">
+            <div className="form-row">
+              <div className="form-group">
+                <label htmlFor="district">District</label>
+                <input
+                  id="district"
+                  name="district"
+                  type="text"
+                  placeholder="e.g. Nagpur"
+                  value={formData.district}
+                  onChange={handleChange}
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="taluka">Taluka</label>
+                <input
+                  id="taluka"
+                  name="taluka"
+                  type="text"
+                  placeholder="e.g. Kalmeshwar"
+                  value={formData.taluka}
+                  onChange={handleChange}
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="village">Village</label>
+                <input
+                  id="village"
+                  name="village"
+                  type="text"
+                  placeholder="e.g. Wadi"
+                  value={formData.village}
+                  onChange={handleChange}
+                />
+              </div>
+            </div>
+
+            <div className="form-row">
+              <div className="form-group">
+                <label htmlFor="latitude">Latitude</label>
+                <input
+                  id="latitude"
+                  name="latitude"
+                  type="text"
+                  placeholder="21.1458"
+                  value={formData.latitude}
+                  onChange={handleChange}
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="longitude">Longitude</label>
+                <input
+                  id="longitude"
+                  name="longitude"
+                  type="text"
+                  placeholder="79.0882"
+                  value={formData.longitude}
+                  onChange={handleChange}
+                />
+              </div>
+              <div className="form-group">
+                <label>&nbsp;</label>
+                <button type="button" className="search-location-btn">
+                  <Search size={16} /> Search Location
+                </button>
+              </div>
+            </div>
+
+            <button type="submit" className="preview-btn">
+              Preview Area
+            </button>
+          </form>
+        </div>
+      )}
+
+      {/* ---- Stage: PREVIEW ---- */}
+      {stage === STAGES.PREVIEW && (
+        <div className="detection-preview-card">
+          <h3 className="section-title">Area Preview</h3>
+          <div className="preview-summary">
+            <p><strong>District:</strong> {formData.district}</p>
+            {formData.taluka && <p><strong>Taluka:</strong> {formData.taluka}</p>}
+            {formData.village && <p><strong>Village:</strong> {formData.village}</p>}
+            {formData.latitude && <p><strong>Latitude:</strong> {formData.latitude}</p>}
+            {formData.longitude && <p><strong>Longitude:</strong> {formData.longitude}</p>}
+          </div>
+
+          <WellMap wells={[]} />
+
+          <div className="preview-actions">
+            <button className="secondary-btn" onClick={handleReset}>
+              Back
+            </button>
+            <button className="start-detection-btn" onClick={handleStartDetection}>
+              <PlayCircle size={18} /> Start Well Detection
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ---- Stage: PROCESSING ---- */}
+      {stage === STAGES.PROCESSING && (
+        <div className="detection-processing-card">
+          <Loader message="Running detection on the selected area..." />
+        </div>
+      )}
+
+      {/* ---- Stage: COMPLETED ---- */}
+      {stage === STAGES.COMPLETED && (
+        <div className="detection-completed-card">
+          <h3 className="section-title">Detection Completed</h3>
+
+          {detectedWells.length === 0 ? (
+            <>
+              <ErrorMessage message="No wells were detected in the selected area." />
+              <button className="secondary-btn" onClick={handleReset}>
+                Try a Different Area
+              </button>
+            </>
+          ) : (
+            <>
+              <p className="page-subheading">
+                {detectedWells.length} wells detected in {formData.district}
+              </p>
+              <WellMap wells={detectedWells} />
+              <div className="preview-actions">
+                <button className="secondary-btn" onClick={handleReset}>
+                  Run New Detection
+                </button>
+                <button
+                  className="start-detection-btn"
+                  onClick={() => navigate("/app/results")}
+                >
+                  View Full Results
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default WellDetection; 
+================================================== 
+FILE: F:\frontend\src\pages\auth\ForgotPassword.jsx 
+================================================== 
+// src/pages/auth/ForgotPassword.jsx
+import { Link } from "react-router-dom";
+
+function ForgotPassword() {
+  return (
+    <div className="auth-page">
+      <div className="auth-card">
+        <h3 className="auth-form-title">Forgot Password</h3>
+        <p style={{ fontSize: "13px", color: "#6b7280", marginBottom: "16px", textAlign: "center" }}>
+          Password reset via backend is not yet connected. This is a placeholder screen.
+        </p>
+        <Link to="/login" className="auth-link-small">← Back to Login</Link>
+      </div>
+    </div>
+  );
+}
+
+export default ForgotPassword; 
+================================================== 
+FILE: F:\frontend\src\pages\auth\Login.jsx 
+================================================== 
+// src/pages/auth/Login.jsx
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { Eye, EyeOff } from "lucide-react";
+import { useAuth } from "../../context/AuthContext";
+import { loginUser } from "../../services/authService";
+import { isValidEmail } from "../../utils/validators";
+import { APP_NAME, ORG_NAME } from "../../utils/constants";
+
+function Login() {
+  const navigate = useNavigate();
+  const { login } = useAuth();
+
+  const [formData, setFormData] = useState({ email: "", password: "" });
+  const [rememberMe, setRememberMe] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [errors, setErrors] = useState({});
+  const [serverError, setServerError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    setErrors((prev) => ({ ...prev, [name]: "" })); // clear error as user types
+  };
+
+  const validate = () => {
+    const newErrors = {};
+    if (!formData.email) newErrors.email = "Email is required.";
+    else if (!isValidEmail(formData.email)) newErrors.email = "Enter a valid email.";
+
+    if (!formData.password) newErrors.password = "Password is required.";
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setServerError("");
+
+    if (!validate()) return;
+
+    setIsLoading(true);
+    try {
+      const user = await loginUser(formData);
+      login(user); // saves to AuthContext + localStorage
+      navigate("/app/dashboard");
+    } catch (err) {
+      // Friendly message only — never expose raw backend errors
+      setServerError(err.message || "Login failed. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div className="auth-page">
+      <div className="auth-card">
+        <div className="auth-header">
+          <Link to="/" style={{ textDecoration: "none" }}>
+            <h2>{ORG_NAME}</h2>
+          </Link>
+          <p>{APP_NAME}</p>
+        </div>
+
+        <h3 className="auth-form-title">Login</h3>
+
+        {serverError && <div className="auth-error-banner">{serverError}</div>}
+
+        <form onSubmit={handleSubmit} noValidate>
+          <div className="form-group">
+            <label htmlFor="email">Email</label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              value={formData.email}
+              onChange={handleChange}
+              placeholder="you@example.com"
+            />
+            {errors.email && <span className="field-error">{errors.email}</span>}
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="password">Password</label>
+            <div className="password-input-wrapper">
+              <input
+                id="password"
+                name="password"
+                type={showPassword ? "text" : "password"}
+                value={formData.password}
+                onChange={handleChange}
+                placeholder="Enter your password"
+              />
+              <button
+                type="button"
+                className="password-toggle-btn"
+                onClick={() => setShowPassword((prev) => !prev)}
+                aria-label="Toggle password visibility"
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
+            {errors.password && <span className="field-error">{errors.password}</span>}
+          </div>
+
+          <div className="auth-options-row">
+            <label className="checkbox-label">
+              <input
+                type="checkbox"
+                checked={rememberMe}
+                onChange={() => setRememberMe((prev) => !prev)}
+              />
+              Remember me
+            </label>
+            <Link to="/forgot-password" className="auth-link-small">
+              Forgot password?
+            </Link>
+          </div>
+
+          <button type="submit" className="auth-submit-btn" disabled={isLoading}>
+            {isLoading ? "Logging in..." : "Login"}
+          </button>
+        </form>
+
+        <p className="auth-switch-text">
+          Don't have an account? <Link to="/register">Register</Link>
+        </p>
+
+        <p className="auth-hint">
+          Demo credentials: <strong>demo@nbsslup.gov.in</strong> / <strong>Demo@123</strong>
+        </p>
+      </div>
+    </div>
+  );
+}
+
+export default Login; 
+================================================== 
+FILE: F:\frontend\src\pages\auth\Register.jsx 
+================================================== 
+// src/pages/auth/Register.jsx
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { Eye, EyeOff } from "lucide-react";
+import { registerUser } from "../../services/authService";
+import { isValidEmail, isValidMobile, isStrongPassword } from "../../utils/validators";
+import { APP_NAME, ORG_NAME } from "../../utils/constants";
+
+const initialFormState = {
+  fullName: "",
+  email: "",
+  mobile: "",
+  organization: "",
+  password: "",
+  confirmPassword: "",
+};
+
+function Register() {
+  const navigate = useNavigate();
+
+  const [formData, setFormData] = useState(initialFormState);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [errors, setErrors] = useState({});
+  const [serverError, setServerError] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    setErrors((prev) => ({ ...prev, [name]: "" }));
+  };
+
+  const validate = () => {
+    const newErrors = {};
+
+    if (!formData.fullName.trim()) newErrors.fullName = "Full name is required.";
+
+    if (!formData.email) newErrors.email = "Email is required.";
+    else if (!isValidEmail(formData.email)) newErrors.email = "Enter a valid email.";
+
+    if (!formData.mobile) newErrors.mobile = "Mobile number is required.";
+    else if (!isValidMobile(formData.mobile)) newErrors.mobile = "Enter a valid 10-digit mobile number.";
+
+    if (!formData.organization.trim()) newErrors.organization = "Organization/Department is required.";
+
+    if (!formData.password) newErrors.password = "Password is required.";
+    else if (!isStrongPassword(formData.password)) newErrors.password = "Password must be at least 6 characters.";
+
+    if (formData.confirmPassword !== formData.password) {
+      newErrors.confirmPassword = "Passwords do not match.";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setServerError("");
+    setSuccessMessage("");
+
+    if (!validate()) return;
+
+    setIsLoading(true);
+    try {
+      // eslint-disable-next-line no-unused-vars
+      const { confirmPassword, ...payload } = formData;
+      await registerUser(payload);
+      setSuccessMessage("Registration successful! Redirecting to login...");
+      setTimeout(() => navigate("/login"), 1500);
+    } catch (err) {
+      setServerError(err.message || "Registration failed. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div className="auth-page">
+      <div className="auth-card">
+        <div className="auth-header">
+          <Link to="/" style={{ textDecoration: "none" }}>
+            <h2>{ORG_NAME}</h2>
+          </Link>
+          <p>{APP_NAME}</p>
+        </div>
+
+        <h3 className="auth-form-title">Register</h3>
+
+        {serverError && <div className="auth-error-banner">{serverError}</div>}
+        {successMessage && <div className="auth-success-banner">{successMessage}</div>}
+
+        <form onSubmit={handleSubmit} noValidate>
+          <div className="form-group">
+            <label htmlFor="fullName">Full Name</label>
+            <input
+              id="fullName"
+              name="fullName"
+              type="text"
+              value={formData.fullName}
+              onChange={handleChange}
+              placeholder="Your full name"
+            />
+            {errors.fullName && <span className="field-error">{errors.fullName}</span>}
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="email">Email</label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              value={formData.email}
+              onChange={handleChange}
+              placeholder="you@example.com"
+            />
+            {errors.email && <span className="field-error">{errors.email}</span>}
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="mobile">Mobile Number</label>
+            <input
+              id="mobile"
+              name="mobile"
+              type="tel"
+              value={formData.mobile}
+              onChange={handleChange}
+              placeholder="10-digit mobile number"
+            />
+            {errors.mobile && <span className="field-error">{errors.mobile}</span>}
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="organization">Organization/Department</label>
+            <input
+              id="organization"
+              name="organization"
+              type="text"
+              value={formData.organization}
+              onChange={handleChange}
+              placeholder="e.g. ICAR - NBSS & LUP"
+            />
+            {errors.organization && <span className="field-error">{errors.organization}</span>}
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="password">Password</label>
+            <div className="password-input-wrapper">
+              <input
+                id="password"
+                name="password"
+                type={showPassword ? "text" : "password"}
+                value={formData.password}
+                onChange={handleChange}
+                placeholder="At least 6 characters"
+              />
+              <button
+                type="button"
+                className="password-toggle-btn"
+                onClick={() => setShowPassword((prev) => !prev)}
+                aria-label="Toggle password visibility"
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
+            {errors.password && <span className="field-error">{errors.password}</span>}
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="confirmPassword">Confirm Password</label>
+            <div className="password-input-wrapper">
+              <input
+                id="confirmPassword"
+                name="confirmPassword"
+                type={showConfirmPassword ? "text" : "password"}
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                placeholder="Re-enter your password"
+              />
+              <button
+                type="button"
+                className="password-toggle-btn"
+                onClick={() => setShowConfirmPassword((prev) => !prev)}
+                aria-label="Toggle confirm password visibility"
+              >
+                {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
+            {errors.confirmPassword && <span className="field-error">{errors.confirmPassword}</span>}
+          </div>
+
+          <button type="submit" className="auth-submit-btn" disabled={isLoading}>
+            {isLoading ? "Registering..." : "Register"}
+          </button>
+        </form>
+
+        <p className="auth-switch-text">
+          Already have an account? <Link to="/login">Login</Link>
+        </p>
+      </div>
+    </div>
+  );
+}
+
+export default Register; 
+================================================== 
+FILE: F:\frontend\src\pages\public\About.jsx 
+================================================== 
+// src/pages/public/About.jsx
+import { ORG_NAME } from "../../utils/constants";
+
+function About() {
+  return (
+    <div className="public-container public-section static-page">
+      <h1 className="static-page-heading">About Us</h1>
+
+      <section className="static-page-block">
+        <h2>About ICAR</h2>
+        <p>
+          The Indian Council of Agricultural Research (ICAR) is an
+          autonomous organization responsible for coordinating agricultural
+          research and education across India. It plays a central role in
+          advancing agricultural science and technology in support of the
+          country's farmers and agricultural sector.
+        </p>
+      </section>
+
+      <section className="static-page-block">
+        <h2>About NBSS &amp; LUP</h2>
+        <p>
+          The National Bureau of Soil Survey and Land Use Planning
+          (NBSS&amp;LUP) is an ICAR institute focused on soil survey, soil
+          resource assessment, land resource management, land use
+          planning, and the application of remote sensing and GIS to
+          agricultural resource management.
+        </p>
+      </section>
+
+      <section className="static-page-block">
+        <h2>{ORG_NAME} — Nagpur</h2>
+        <p>
+          The Nagpur-based unit of NBSS&amp;LUP is associated with soil
+          survey, land resource studies, and the use of geospatial
+          technologies in agricultural land-use planning for the region.
+        </p>
+      </section>
+    </div>
+  );
+}
+
+export default About;
+ 
+================================================== 
+FILE: F:\frontend\src\pages\public\Contact.jsx 
+================================================== 
+// src/pages/public/Contact.jsx
+import { useState } from "react";
+import { ORG_NAME } from "../../utils/constants";
+import { submitContactForm } from "../../services/contactService";
+
+const initialForm = { name: "", email: "", subject: "", message: "" };
+
+function Contact() {
+  const [form, setForm] = useState(initialForm);
+  const [status, setStatus] = useState("idle"); // idle | sending | success | error
+  const [errorMsg, setErrorMsg] = useState("");
+
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setStatus("sending");
+    setErrorMsg("");
+    try {
+      await submitContactForm(form);
+      setStatus("success");
+      setForm(initialForm);
+    } catch (err) {
+      setStatus("error");
+      setErrorMsg(err.message || "Something went wrong. Please try again.");
+    }
+  };
+
+  return (
+    <div className="public-container public-section static-page">
+      <h1 className="static-page-heading">Contact Us</h1>
+
+      <section className="static-page-block">
+        <h2>Organization</h2>
+        <p className="contact-info-list">
+          {ORG_NAME}
+          <br />
+          Nagpur, Maharashtra, India
+        </p>
+      </section>
+
+      <section className="static-page-block">
+        <h2>Contact Information</h2>
+        <p className="contact-info-list">
+          Address: [Institute address placeholder]
+          <br />
+          Email: [contact email placeholder]
+          <br />
+          Telephone: [contact number placeholder]
+          <br />
+          Website: [official website placeholder]
+        </p>
+      </section>
+
+      <section className="static-page-block">
+        <h2>Send a Message</h2>
+
+        {status === "success" && (
+          <div className="auth-success-banner" role="status">
+            Thank you. Your message has been submitted.
+          </div>
+        )}
+        {status === "error" && (
+          <div className="auth-error-banner" role="alert">
+            {errorMsg}
+          </div>
+        )}
+
+        <form className="contact-form-card" onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label htmlFor="name">Name</label>
+            <input id="name" name="name" required value={form.name} onChange={handleChange} />
+          </div>
+          <div className="form-group">
+            <label htmlFor="email">Email</label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              required
+              value={form.email}
+              onChange={handleChange}
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="subject">Subject</label>
+            <input id="subject" name="subject" required value={form.subject} onChange={handleChange} />
+          </div>
+          <div className="form-group">
+            <label htmlFor="message">Message</label>
+            <textarea
+              id="message"
+              name="message"
+              rows={5}
+              required
+              value={form.message}
+              onChange={handleChange}
+            />
+          </div>
+          <button type="submit" className="auth-submit-btn" disabled={status === "sending"}>
+            {status === "sending" ? "Submitting..." : "Submit"}
+          </button>
+        </form>
+      </section>
+    </div>
+  );
+}
+
+export default Contact;
+ 
+================================================== 
+FILE: F:\frontend\src\pages\public\Home.jsx 
+================================================== 
+// src/pages/public/Home.jsx
+import { Link } from "react-router-dom";
+import { APP_NAME, ORG_NAME } from "../../utils/constants";
+
+function Home() {
+  return (
+    <>
+      <section className="hero-section">
+        <div className="public-container">
+          <p className="hero-eyebrow">{ORG_NAME} — Nagpur</p>
+          <h1 className="hero-heading">{APP_NAME}</h1>
+          <p className="hero-subheading">
+            A geospatial platform for agricultural water well data
+          </p>
+          <p className="hero-body">
+            This platform supports researchers and field staff in
+            identifying, mapping, and managing agricultural water well
+            records for {ORG_NAME}, Nagpur.
+          </p>
+          <div className="hero-actions">
+            <Link to="/login" className="hero-btn-primary">
+              Login to Continue
+            </Link>
+            <Link to="/about" className="hero-btn-secondary">
+              Learn More
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      <section className="public-section">
+        <div className="public-container org-strip">
+          <div>
+            <p className="section-eyebrow-green">About the Organization</p>
+            <h2 className="section-heading">About {ORG_NAME}</h2>
+            <p className="section-body">
+              The National Bureau of Soil Survey and Land Use Planning
+              (NBSS&amp;LUP) is an ICAR institute engaged in soil survey,
+              land resource assessment, land use planning, and related
+              geospatial applications in support of Indian agriculture.
+            </p>
+            <Link to="/about" className="public-btn-secondary">
+              Read More
+            </Link>
+          </div>
+          <div className="org-strip-panel">
+            <h3 className="section-heading">At a glance</h3>
+            <ul className="org-strip-list">
+              <li>Soil survey &amp; land resource assessment</li>
+              <li>Land use planning</li>
+              <li>Remote sensing &amp; GIS applications</li>
+              <li>Agricultural resource management</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section className="public-section public-section-muted">
+        <div className="public-container">
+          <p className="section-eyebrow-green">Notice</p>
+          <div className="notice-panel">
+            <h3 className="section-heading">Important Information</h3>
+            <p className="section-body">
+              Access to well detection and reporting tools requires an
+              account. Existing users can log in directly; new users can
+              register for access below.
+            </p>
+          </div>
+        </div>
+      </section>
+    </>
+  );
+}
+
+export default Home;
+ 
+================================================== 
+FILE: F:\frontend\src\routes\AppRoutes.jsx 
+================================================== 
+// src/routes/AppRoutes.jsx
+import { Routes, Route, Navigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+
+import PublicLayout from "../components/public/PublicLayout";
+import Home from "../pages/public/Home";
+import About from "../pages/public/About";
+import Contact from "../pages/public/Contact";
+import NotFound from "../pages/NotFound";
+
+import Login from "../pages/auth/Login";
+import Register from "../pages/auth/Register";
+import ForgotPassword from "../pages/auth/ForgotPassword";
+
+import MainLayout from "../layouts/MainLayout";
+import Dashboard from "../pages/Dashboard";
+import WellDetection from "../pages/WellDetection";
+import MapView from "../pages/MapView";
+import Results from "../pages/Results";
+import Reports from "../pages/Reports";
+import Profile from "../pages/Profile";
+import Settings from "../pages/Settings";
+
+// Wrapper that blocks access to a page unless the user is logged in
+function ProtectedRoute({ children }) {
+  const { isAuthenticated, loading } = useAuth();
+
+  if (loading) return null; // could show a loader here later
+  if (!isAuthenticated) return <Navigate to="/login" replace />;
+
+  return children;
+}
+
+function AppRoutes() {
+  return (
+    <Routes>
+      {/* Everything — public site AND the internal app — shares the
+          UtilityBar / PublicHeader / PublicFooter via PublicLayout */}
+      <Route element={<PublicLayout />}>
+        <Route path="/" element={<Home />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/contact" element={<Contact />} />
+
+        {/* Auth pages — also share the public header/footer */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+
+        {/* Protected internal application — MainLayout (navbar + sidebar)
+            now renders inside PublicLayout's <main>, so the dashboard,
+            well detection, map, results, reports, settings and profile
+            pages all get the public header/footer/utility bar too */}
+        <Route
+          path="/app"
+          element={
+            <ProtectedRoute>
+              <MainLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route index element={<Navigate to="/app/dashboard" replace />} />
+          <Route path="dashboard" element={<Dashboard />} />
+          <Route path="detection" element={<WellDetection />} />
+          <Route path="map" element={<MapView />} />
+          <Route path="results" element={<Results />} />
+          <Route path="reports" element={<Reports />} />
+          <Route path="profile" element={<Profile />} />
+          <Route path="settings" element={<Settings />} />
+        </Route>
+
+        {/* Catch-all: unknown paths get a 404 with the public header/footer */}
+        <Route path="*" element={<NotFound />} />
+      </Route>
+    </Routes>
+  );
+}
+
+export default AppRoutes;
+ 
+================================================== 
+FILE: F:\frontend\src\services\api.js 
+================================================== 
+// src/services/api.js
+import axios from "axios";
+
+// Centralized Axios instance.
+// All service files (authService, wellService, detectionService, reportService)
+// should import and use THIS instance instead of calling axios directly.
+// This is the ONLY place that needs to change if the backend's base URL,
+// auth token handling, or response format changes.
+
+const api = axios.create({
+  baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:8000/api",
+  timeout: 15000,
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
+
+// ----- Request Interceptor -----
+// Attach auth token automatically if one exists (e.g. after real login).
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem("agriWellToken");
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+// ----- Response Interceptor -----
+// Normalizes errors so components never see raw axios/network errors —
+// they only ever see a clean `.message` string (per spec: never expose raw backend errors).
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    let friendlyMessage = "Something went wrong. Please try again.";
+
+    if (error.response) {
+      // Backend responded with an error status (4xx/5xx)
+      friendlyMessage =
+        error.response.data?.message || `Request failed (${error.response.status}).`;
+    } else if (error.request) {
+      // Request was made but no response received (network/server down)
+      friendlyMessage = "Unable to reach the server. Please check your connection.";
+    }
+
+    return Promise.reject(new Error(friendlyMessage));
+  }
+);
+
+export default api; 
+================================================== 
+FILE: F:\frontend\src\services\authService.js 
+================================================== 
+// src/services/authService.js
+
+// Simulates network latency so loading states feel real during testing
+const MOCK_DELAY = 800;
+
+// Simple in-memory mock "database" of registered users.
+// In a real backend this would live server-side, not in the frontend.
+let mockUsers = [
+  {
+    fullName: "Demo User",
+    email: "demo@nbsslup.gov.in",
+    mobile: "9876543210",
+    organization: "ICAR - NBSS & LUP",
+    password: "Demo@123",
+  },
+];
+
+function delay(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/**
+ * Mock login.
+ * Later replace this function body with:
+ *   const res = await api.post("/auth/login", { email, password });
+ *   return res.data;
+ */
+export async function loginUser({ email, password }) {
+  await delay(MOCK_DELAY);
+
+  const foundUser = mockUsers.find((u) => u.email === email);
+
+  if (!foundUser) {
+    throw new Error("No account found with this email.");
+  }
+  if (foundUser.password !== password) {
+    throw new Error("Incorrect password.");
+  }
+
+  // Never return the password field to the "frontend" — mimic real API behavior
+  const { password: _pw, ...safeUser } = foundUser;
+  return safeUser;
+}
+
+/**
+ * Mock registration.
+ * Later replace this function body with:
+ *   const res = await api.post("/auth/register", formData);
+ *   return res.data;
+ */
+export async function registerUser(formData) {
+  await delay(MOCK_DELAY);
+
+  const alreadyExists = mockUsers.some((u) => u.email === formData.email);
+  if (alreadyExists) {
+    throw new Error("An account with this email already exists.");
+  }
+
+  mockUsers.push(formData);
+
+  const { password: _pw, ...safeUser } = formData;
+  return safeUser;
+} 
+================================================== 
+FILE: F:\frontend\src\services\contactService.js 
+================================================== 
+// src/services/contactService.js
+
+const MOCK_DELAY = 700;
+
+function delay(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/**
+ * Mock contact form submission.
+ * Later replace this function body with:
+ *   const res = await api.post("/contact", payload);
+ *   return res.data;
+ */
+export async function submitContactForm(payload) {
+  await delay(MOCK_DELAY);
+
+  if (!payload.name || !payload.email || !payload.message) {
+    throw new Error("Please fill in all required fields.");
+  }
+
+  return { received: true };
+}
+ 
+================================================== 
+FILE: F:\frontend\src\services\detectionService.js 
+================================================== 
+// src/services/detectionService.js
+import mockWells from "../data/mockWells";
+
+const MOCK_PROCESSING_TIME = 2500;
+
+function delay(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/**
+ * Mock well detection trigger.
+ * Later replace this function body with:
+ *   const res = await api.post("/detection", areaParams);
+ *   return res.data.data;
+ *
+ * areaParams example: { district, taluka, village, latitude, longitude, areaType }
+ */
+export async function runDetection(areaParams) {
+  await delay(MOCK_PROCESSING_TIME);
+
+  // Basic validation mimicking what a real backend might reject
+  if (!areaParams.district) {
+    throw new Error("District is required to run detection.");
+  }
+
+  // For the mock, just return the existing sample wells as "detection results"
+  // filtered loosely by district if provided, to feel realistic.
+  const results = mockWells.filter(
+    (w) => w.district.toLowerCase() === areaParams.district.toLowerCase()
+  );
+
+  if (results.length === 0) {
+    // Simulate an empty-result scenario, which the UI must handle gracefully
+    return [];
+  }
+
+  return results;
+} 
+================================================== 
+FILE: F:\frontend\src\services\exportService.js 
+================================================== 
+// src/services/exportService.js
+
+/**
+ * Converts an array of well objects into a CSV string and triggers a download.
+ * This is a genuine working CSV export (not mocked) since it's pure frontend logic —
+ * no backend is needed for this specific feature.
+ */
+export function exportWellsToCSV(wells, filename = "well-detection-results.csv") {
+  if (!wells || wells.length === 0) {
+    throw new Error("No data available to export.");
+  }
+
+  const headers = ["Well ID", "Latitude", "Longitude", "Confidence", "Status", "Village", "District", "Detected On"];
+  const rows = wells.map((w) => [
+    w.id,
+    w.latitude,
+    w.longitude,
+    `${Math.round(w.confidence * 100)}%`,
+    w.status,
+    w.village,
+    w.district,
+    w.detectedOn,
+  ]);
+
+  const csvContent = [headers, ...rows].map((row) => row.join(",")).join("\n");
+  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+
+  const link = document.createElement("a");
+  link.href = url;
+  link.setAttribute("download", filename);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
+
+const MOCK_DELAY = 700;
+function delay(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/**
+ * Mock report generation.
+ * Later replace with:
+ *   const res = await api.post("/reports/generate", { wellIds });
+ *   return res.data; // e.g. a report ID or download URL
+ */
+export async function generateReport(wells) {
+  await delay(MOCK_DELAY);
+
+  if (!wells || wells.length === 0) {
+    throw new Error("Cannot generate a report with no detection data.");
+  }
+
+  return {
+    reportId: `RPT-${Date.now()}`,
+    generatedAt: new Date().toISOString(),
+    wellCount: wells.length,
+  };
+} 
+================================================== 
+FILE: F:\frontend\src\services\reportService.js 
+================================================== 
+// src/services/reportService.js
+import mockWells from "../data/mockWells";
+import { CONFIDENCE_LEVELS } from "../utils/constants";
+
+const MOCK_DELAY = 500;
+function delay(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/**
+ * Fetch data needed for the Reports page summary.
+ * Later replace with:
+ *   const res = await api.get("/reports/summary");
+ *   return res.data.data;
+ */
+export async function getReportSummary() {
+  await delay(MOCK_DELAY);
+
+  const totalWells = mockWells.length;
+  const high = mockWells.filter((w) => w.confidence >= CONFIDENCE_LEVELS.HIGH).length;
+  const medium = mockWells.filter(
+    (w) => w.confidence >= CONFIDENCE_LEVELS.MEDIUM && w.confidence < CONFIDENCE_LEVELS.HIGH
+  ).length;
+  const low = mockWells.filter((w) => w.confidence < CONFIDENCE_LEVELS.MEDIUM).length;
+
+  const districts = [...new Set(mockWells.map((w) => w.district))];
+  const latestDetectionDate = mockWells
+    .map((w) => w.detectedOn)
+    .sort()
+    .reverse()[0];
+
+  return {
+    totalWells,
+    highConfidence: high,
+    mediumConfidence: medium,
+    lowConfidence: low,
+    areasCovered: districts.join(", "),
+    latestDetectionDate,
+  };
+} 
+================================================== 
+FILE: F:\frontend\src\services\wellService.js 
+================================================== 
+// src/services/wellService.js
+import mockWells from "../data/mockWells";
+import { CONFIDENCE_LEVELS } from "../utils/constants";
+
+const MOCK_DELAY = 500;
+
+function delay(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/**
+ * Fetch all detected wells.
+ * Later replace with:
+ *   const res = await api.get("/wells");
+ *   return res.data.data;
+ */
+export async function getAllWells() {
+  await delay(MOCK_DELAY);
+  return mockWells;
+}
+
+/**
+ * Fetch summary stats for the dashboard.
+ * Later this may become its own backend endpoint (e.g. GET /wells/summary)
+ * instead of being computed on the frontend.
+ */
+export async function getDashboardStats() {
+  await delay(MOCK_DELAY);
+
+  const totalWells = mockWells.length;
+  const uniqueVillages = new Set(mockWells.map((w) => w.village)).size;
+  const avgConfidence =
+    mockWells.reduce((sum, w) => sum + w.confidence, 0) / totalWells;
+
+  return {
+    totalWells,
+    selectedArea: "Nagpur District",
+    detectionAccuracy: `${Math.round(avgConfidence * 100)}%`,
+    processedImages: 24, // mock static value for now
+    villagesCovered: uniqueVillages,
+  };
+}
+
+/**
+ * Wells grouped by village/area, including average confidence per area —
+ * used for the bar chart (bar color reflects avgConfidence).
+ */
+/**
+ * Wells grouped by village/area, broken down by confidence level (High/Medium/Low)
+ * — used for the stacked bar chart, using the same color scheme as the pie chart.
+ */
+export async function getWellsByArea() {
+  await delay(MOCK_DELAY);
+
+  const grouped = {};
+  mockWells.forEach((well) => {
+    if (!grouped[well.village]) {
+      grouped[well.village] = { area: well.village, high: 0, medium: 0, low: 0 };
+    }
+    if (well.confidence >= CONFIDENCE_LEVELS.HIGH) grouped[well.village].high += 1;
+    else if (well.confidence >= CONFIDENCE_LEVELS.MEDIUM) grouped[well.village].medium += 1;
+    else grouped[well.village].low += 1;
+  });
+
+  return Object.values(grouped);
+}
+
+/**
+ * Wells grouped by confidence level (High/Medium/Low) — used for the pie chart.
+ */
+export async function getConfidenceBreakdown() {
+  await delay(MOCK_DELAY);
+
+  let high = 0, medium = 0, low = 0;
+  mockWells.forEach((w) => {
+    if (w.confidence >= CONFIDENCE_LEVELS.HIGH) high++;
+    else if (w.confidence >= CONFIDENCE_LEVELS.MEDIUM) medium++;
+    else low++;
+  });
+
+  return [
+    { name: "High Confidence", value: high },
+    { name: "Medium Confidence", value: medium },
+    { name: "Low Confidence", value: low },
+  ];
+} 
+================================================== 
+FILE: F:\frontend\src\utils\constants.js 
+================================================== 
+// src/utils/constants.js
+// Central place for constants used across the app.
+// Avoids magic strings/numbers scattered in components.
+
+export const APP_NAME = "";
+export const ORG_NAME = "";
+
+export const CONFIDENCE_LEVELS = {
+  HIGH: 0.75,   // >= 75% confidence
+  MEDIUM: 0.5,  // 50% - 74%
+  // below 0.5 is considered LOW
+};
+
+export const DETECTION_STATUS = {
+  DETECTED: "Detected",
+  PROCESSING: "Processing",
+  FAILED: "Failed",
+};
+
+export const MAP_DEFAULT_CENTER = [21.1458, 79.0882]; // Nagpur, MH
+export const MAP_DEFAULT_ZOOM = 12; 
+================================================== 
+FILE: F:\frontend\src\utils\leafletIconFix.js 
+================================================== 
+// src/utils/leafletIconFix.js
+// Vite/webpack break Leaflet's default marker icon paths.
+// This file patches it so default markers still render if ever used.
+import L from "leaflet";
+import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
+import markerIcon from "leaflet/dist/images/marker-icon.png";
+import markerShadow from "leaflet/dist/images/marker-shadow.png";
+
+delete L.Icon.Default.prototype._getIconUrl;
+
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: markerIcon2x,
+  iconUrl: markerIcon,
+  shadowUrl: markerShadow,
+}); 
+================================================== 
+FILE: F:\frontend\src\utils\validators.js 
+================================================== 
+// src/utils/validators.js
+
+export function isValidEmail(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+export function isValidMobile(mobile) {
+  return /^[6-9]\d{9}$/.test(mobile); // basic 10-digit Indian mobile format
+}
+
+export function isStrongPassword(password) {
+  // At least 6 characters — kept simple for a research/internal tool
+  return password.length >= 6;
+}

@@ -64,10 +64,9 @@ class VillageResponse(OrmBaseModel):
     """
     A village — the finest-grain location users select. Includes:
     - Administrative hierarchy (state/district/taluka ids)
-    - Geographic boundary (geom_geojson) for imagery acquisition + 
+    - Geographic boundary (geom_geojson) for imagery acquisition +
       spatial validation
     - Descriptive metadata
-    
     geom_geojson stores a GeoJSON Feature string (not validated here —
     the DB layer ensures it's valid). Later, gis/geojson_builder.py
     converts AI detections to the same format so frontend can overlay
@@ -102,6 +101,8 @@ class LocationCascadeResponse(BaseModel):
     not a single entity.
     """
 
-    level: str = Field(description="Which level: 'states', 'districts', 'talukas', 'villages'.")
+    level: str = Field(
+        description="Which level: 'states', 'districts', 'talukas', 'villages'."
+    )
     items: list[StateResponse | DistrictResponse | TalukaResponse | VillageResponse]
     total: int = Field(ge=0)

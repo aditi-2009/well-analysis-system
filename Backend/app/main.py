@@ -29,6 +29,9 @@ modules verified to exist and work so far in this project. The v1
 router import is intentionally NOT included yet (see NOTE below) —
 adding an import for a file that doesn't compile yet would violate the
 "every import must exist" rule.
+app.db.session — database initialization
+app.ml.bridge — model loading (optional warm-up)
+app.api.v1.router — all endpoints
 
 DESIGN PATTERN
 -----------------
@@ -54,12 +57,16 @@ from fastapi import FastAPI, Request, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-
+from app.middleware.logging_middleware import LoggingMiddleware
 from app.core.config import get_settings
 from app.core.exceptions import AppException
 from app.core.logging_config import setup_logging
+from app.ml.bridge import load_model
+from sqlalchemy import text
+from app.db.base import engine
 
 settings = get_settings()
+setup_logging()
 logger = logging.getLogger(__name__)
 
 
@@ -75,14 +82,28 @@ async def lifespan(app: FastAPI):
     arrive (database connection pool, AI bridge warm-up) they get
     initialized here too — NOT inside route handlers.
     """
-    setup_logging()
     logger.info(
         "Starting %s | env=%s | debug=%s",
         settings.APP_NAME,
         settings.ENV,
         settings.DEBUG,
     )
+    # STARTUP: Initialize database
+    try:
+        with engine.connect() as conn:
+            conn.execute(text("SELECT 1"))
+        logger.info("Database connection OK")
+    except Exception as e:
+        logger.error("Database connection failed: %s", e)
+        raise
 
+    # STARTUP: Warm-up ML model (optional, but recommended)
+    try:
+        logger.info("Loading YOLOv11 model...")
+        model = load_model()
+        logger.info(f"Model loaded: {type(model)}")
+    except Exception as e:
+        logger.warning(f" Model warm-up failed (inference will be slower): {e}")
     yield  # ---- application runs here ----
 
     logger.info("Shutting down %s", settings.APP_NAME)
@@ -90,7 +111,8 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title=settings.APP_NAME,
-    version="0.1.0",
+    version="1.0.0",
+    description="AI-Powered Agricultural Intelligence System",
     docs_url="/docs" if settings.DEBUG else None,
     redoc_url="/redoc" if settings.DEBUG else None,
     lifespan=lifespan,
@@ -104,6 +126,7 @@ app = FastAPI(
 # to call this API from the browser. Origins come from Settings, not
 # hardcoded, so staging/production can restrict this via .env without
 # touching code.
+app.add_middleware(LoggingMiddleware)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins,
@@ -201,9 +224,15 @@ async def health_check() -> dict:
     }
 
 
-from app.api.v1.router import api_v1_router  # noqa: E402
-
-app.include_router(api_v1_router, prefix=settings.API_V1_PREFIX)
 # NOTE: app.include_router(api_v1_router, prefix=settings.API_V1_PREFIX)
 # goes here once app/api/v1/router.py actually exists and compiles.
 # Intentionally omitted for now — see docstring above.
+
+# Include versioned API routes
+from app.api.v1.router import api_v1_router  # noqa: E402
+
+app.include_router(api_v1_router, prefix=settings.API_V1_PREFIX)
+if __name__ == "__main__":
+    import uvicorn
+
+    uvicorn.run("app.main:app", host="127.0.0.1", port=8000, reload=settings.DEBUG)

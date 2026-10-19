@@ -1,18 +1,22 @@
-// src/layouts/MainLayout.jsx
+﻿// src/layouts/MainLayout.jsx
+// The layout for logged-in pages. The navbar and sidebar stay on screen even when one page fails.
 import { useState } from "react";
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 import Navbar from "../components/common/Navbar";
 import Sidebar from "../components/common/Sidebar";
+import ErrorBoundary from "../components/common/ErrorBoundary";
+
+// The same width the stylesheet uses for phones. One number, so CSS and code cannot disagree.
+const PHONE_QUERY = "(max-width: 768px)";
 
 function MainLayout() {
-  // Controls the mobile off-canvas sidebar (slide-in overlay on small screens)
+  const location = useLocation();
+  // Phones: the sidebar slides over the page. Larger screens: it is shown or hidden in place.
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
-  // Controls whether the sidebar is shown/hidden on desktop/tablet
   const [isDesktopSidebarVisible, setIsDesktopSidebarVisible] = useState(true);
 
-  // Single toggle button in the navbar drives both behaviors depending on screen size
   const toggleSidebar = () => {
-    if (window.innerWidth < 768) {
+    if (window.matchMedia(PHONE_QUERY).matches) {
       setIsMobileSidebarOpen((prev) => !prev);
     } else {
       setIsDesktopSidebarVisible((prev) => !prev);
@@ -29,7 +33,10 @@ function MainLayout() {
           onMobileClose={() => setIsMobileSidebarOpen(false)}
         />
         <main className="main-content">
-          <Outlet />
+          {/* Keyed by path: a failed page is replaced when the user opens another one */}
+          <ErrorBoundary key={location.pathname}>
+            <Outlet />
+          </ErrorBoundary>
         </main>
       </div>
     </div>

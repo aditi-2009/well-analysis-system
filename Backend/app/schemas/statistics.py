@@ -45,7 +45,9 @@ class WellCountByTaluka(OrmBaseModel):
     taluka_name: str
     well_count: int = Field(ge=0)
     average_confidence: float | None = Field(default=None, ge=0, le=1)
-    village_count: int = Field(ge=0, description="Number of distinct villages in this taluka with detections.")
+    village_count: int = Field(
+        ge=0, description="Number of distinct villages in this taluka with detections."
+    )
 
 
 class WellCountByDistrict(OrmBaseModel):

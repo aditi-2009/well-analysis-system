@@ -1,11 +1,18 @@
 // src/routes/AppRoutes.jsx
 import { Routes, Route, Navigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+
+import PublicLayout from "../components/public/PublicLayout";
+import Home from "../pages/public/Home";
+import About from "../pages/public/About";
+import Contact from "../pages/public/Contact";
+import NotFound from "../pages/NotFound";
+
+import Login from "../pages/auth/Login";
+import Register from "../pages/auth/Register";
 import ForgotPassword from "../pages/auth/ForgotPassword";
 
 import MainLayout from "../layouts/MainLayout";
-import Login from "../pages/auth/Login";
-import Register from "../pages/auth/Register";
 import Dashboard from "../pages/Dashboard";
 import WellDetection from "../pages/WellDetection";
 import MapView from "../pages/MapView";
@@ -27,32 +34,43 @@ function ProtectedRoute({ children }) {
 function AppRoutes() {
   return (
     <Routes>
-      {/* Public routes */}
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
-      <Route path="/forgot-password" element={<ForgotPassword />} />
+      {/* Everything — public site AND the internal app — shares the
+          UtilityBar / PublicHeader / PublicFooter via PublicLayout */}
+      <Route element={<PublicLayout />}>
+        <Route path="/" element={<Home />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/contact" element={<Contact />} />
 
-      {/* Protected routes (require login), all sharing MainLayout */}
-      <Route
-        path="/"
-        element={
-          <ProtectedRoute>
-            <MainLayout />
-          </ProtectedRoute>
-        }
-      >
-        <Route index element={<Navigate to="/dashboard" replace />} />
-        <Route path="dashboard" element={<Dashboard />} />
-        <Route path="detection" element={<WellDetection />} />
-        <Route path="map" element={<MapView />} />
-        <Route path="results" element={<Results />} />
-        <Route path="reports" element={<Reports />} />
-        <Route path="profile" element={<Profile />} />
-        <Route path="settings" element={<Settings />} />
+        {/* Auth pages — also share the public header/footer */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+
+        {/* Protected internal application — MainLayout (navbar + sidebar)
+            now renders inside PublicLayout's <main>, so the dashboard,
+            well detection, map, results, reports, settings and profile
+            pages all get the public header/footer/utility bar too */}
+        <Route
+          path="/app"
+          element={
+            <ProtectedRoute>
+              <MainLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route index element={<Navigate to="/app/dashboard" replace />} />
+          <Route path="dashboard" element={<Dashboard />} />
+          <Route path="detection" element={<WellDetection />} />
+          <Route path="map" element={<MapView />} />
+          <Route path="results" element={<Results />} />
+          <Route path="reports" element={<Reports />} />
+          <Route path="profile" element={<Profile />} />
+          <Route path="settings" element={<Settings />} />
+        </Route>
+
+        {/* Catch-all: unknown paths get a 404 with the public header/footer */}
+        <Route path="*" element={<NotFound />} />
       </Route>
-
-      {/* Catch-all: redirect unknown paths to dashboard */}
-      <Route path="*" element={<Navigate to="/dashboard" replace />} />
     </Routes>
   );
 }

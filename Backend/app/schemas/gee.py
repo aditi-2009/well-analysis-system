@@ -86,10 +86,7 @@ class ImagerySceneMetadata(BaseModel):
     """
 
     scene_id: str = Field(
-        description=(
-            "Unique identifier from the provider "
-            "(e.g., GEE asset ID)."
-        )
+        description=("Unique identifier from the provider " "(e.g., GEE asset ID).")
     )
     acquisition_date: datetime
     cloud_percent: float = Field(ge=0, le=100)
@@ -133,8 +130,7 @@ class ImageryDownloadResponse(BaseModel):
 
     file_id: str = Field(
         description=(
-            "Unique identifier for the downloaded GeoTIFF. "
-            "Use this in POST /detect."
+            "Unique identifier for the downloaded GeoTIFF. " "Use this in POST /detect."
         )
     )
     scene_id: str

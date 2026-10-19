@@ -1,128 +1,121 @@
-// src/pages/Reports.jsx
+﻿// src/pages/Reports.jsx
+// What works today: the summary, the map preview and the CSV download.
+// PDF reports need a backend that does not exist yet, so those buttons say so.
 import { useEffect, useState } from "react";
-import { FileText, Download, FileSpreadsheet } from "lucide-react";
+import { FileSpreadsheet, FileText, Download } from "lucide-react";
 import { getReportSummary } from "../services/reportService";
 import { getAllWells } from "../services/wellService";
-import { exportWellsToCSV, generateReport } from "../services/exportService";
+import { exportWellsToCSV } from "../services/exportService";
+import { useDocumentTitle } from "../hooks/useDocumentTitle";
+import { useToast } from "../context/ToastContext";
 import WellMap from "../components/map/WellMap";
-import Loader from "../components/common/Loader";
-import ErrorMessage from "../components/common/ErrorMessage";
+import PageHeader from "../components/common/PageHeader";
+import LoadingState from "../components/common/LoadingState";
+import ErrorState from "../components/common/ErrorState";
+import EmptyState from "../components/common/EmptyState";
+import Button from "../components/common/Button";
 
 function Reports() {
+  useDocumentTitle("Reports");
+  const toast = useToast();
+
   const [summary, setSummary] = useState(null);
   const [wells, setWells] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [error, setError] = useState(null);
 
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [actionMessage, setActionMessage] = useState("");
+  async function loadReportData() {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const [summaryResult, wellsResult] = await Promise.all([getReportSummary(), getAllWells()]);
+      setSummary(summaryResult);
+      setWells(wellsResult);
+    } catch (err) {
+      setError(err);
+    } finally {
+      setIsLoading(false);
+    }
+  }
 
   useEffect(() => {
-    async function loadReportData() {
-      setIsLoading(true);
-      setError("");
-      try {
-        const [summaryResult, wellsResult] = await Promise.all([
-          getReportSummary(),
-          getAllWells(),
-        ]);
-        setSummary(summaryResult);
-        setWells(wellsResult);
-      } catch (err) {
-        setError("Unable to load report data. Please try again later.");
-      } finally {
-        setIsLoading(false);
-      }
-    }
     loadReportData();
   }, []);
 
-  if (isLoading) return <Loader message="Loading report data..." />;
-  if (error) return <ErrorMessage message={error} />;
-
-  const handleGenerateReport = async () => {
-    setIsGenerating(true);
-    setActionMessage("");
-    try {
-      const report = await generateReport(wells);
-      setActionMessage(`Report ${report.reportId} generated successfully.`);
-    } catch (err) {
-      setActionMessage(err.message || "Failed to generate report.");
-    } finally {
-      setIsGenerating(false);
-      setTimeout(() => setActionMessage(""), 4000);
-    }
-  };
-
-  const handleDownloadPDF = () => {
-    // Mock — real PDF generation requires backend rendering (or a PDF lib later)
-    setActionMessage("PDF download is not yet connected to a backend. This is a placeholder.");
-    setTimeout(() => setActionMessage(""), 4000);
-  };
+  if (isLoading) return <LoadingState label="Loading report data" />;
+  if (error) return <ErrorState what="the report data" error={error} onRetry={loadReportData} />;
+  if (!summary) return null;
 
   const handleDownloadCSV = () => {
     try {
       exportWellsToCSV(wells, "well-detection-report.csv");
-      setActionMessage("CSV downloaded successfully.");
+      toast.success("CSV downloaded.");
     } catch (err) {
-      setActionMessage(err.message);
+      toast.error(err.message);
     }
-    setTimeout(() => setActionMessage(""), 3000);
   };
 
+  const summaryRows = [
+    ["Total wells", summary.totalWells],
+    ["High confidence", summary.highConfidence],
+    ["Medium confidence", summary.mediumConfidence],
+    ["Low confidence", summary.lowConfidence],
+    ["Area(s) covered", summary.areasCovered],
+    ["Latest detection", summary.latestDetectionDate],
+  ];
+
   return (
-    <div className="reports-page">
-      <h2 className="page-heading">Reports</h2>
-      <p className="page-subheading">Generate and download detection reports</p>
+    <div className="ds-page">
+      <PageHeader
+        title="Reports"
+        description="Summary of detected wells and downloads"
+        actions={
+          <Button variant="primary" icon={FileSpreadsheet} onClick={handleDownloadCSV}>
+            Download CSV
+          </Button>
+        }
+      />
 
-      {actionMessage && <div className="action-message-banner">{actionMessage}</div>}
-
-      <div className="report-summary-card">
-        <h3 className="section-title">Detection Summary</h3>
-        <div className="report-summary-grid">
-          <div className="report-summary-item">
-            <span className="detail-label">Total Wells</span>
-            <span className="detail-value">{summary.totalWells}</span>
-          </div>
-          <div className="report-summary-item">
-            <span className="detail-label">High Confidence</span>
-            <span className="detail-value">{summary.highConfidence}</span>
-          </div>
-          <div className="report-summary-item">
-            <span className="detail-label">Medium Confidence</span>
-            <span className="detail-value">{summary.mediumConfidence}</span>
-          </div>
-          <div className="report-summary-item">
-            <span className="detail-label">Low Confidence</span>
-            <span className="detail-value">{summary.lowConfidence}</span>
-          </div>
-          <div className="report-summary-item">
-            <span className="detail-label">Area(s) Covered</span>
-            <span className="detail-value">{summary.areasCovered}</span>
-          </div>
-          <div className="report-summary-item">
-            <span className="detail-label">Latest Detection Date</span>
-            <span className="detail-value">{summary.latestDetectionDate}</span>
-          </div>
+      <section className="ds-card">
+        <div className="ds-card-head">
+          <h2 className="ds-card-title">Detection summary</h2>
         </div>
-      </div>
+        <dl className="ds-kv">
+          {summaryRows.map(([label, value]) => (
+            <div key={label}>
+              <dt>{label}</dt>
+              <dd>{value}</dd>
+            </div>
+          ))}
+        </dl>
+      </section>
 
-      <div className="report-map-card">
-        <h3 className="section-title">Map Preview</h3>
+      <section className="ds-card">
+        <div className="ds-card-head">
+          <h2 className="ds-card-title">Map preview</h2>
+        </div>
         <WellMap wells={wells} />
-      </div>
+      </section>
 
-      <div className="report-actions-row">
-        <button className="start-detection-btn" onClick={handleGenerateReport} disabled={isGenerating}>
-          <FileText size={16} /> {isGenerating ? "Generating..." : "Generate Report"}
-        </button>
-        <button className="secondary-btn" onClick={handleDownloadPDF}>
-          <Download size={16} /> Download PDF
-        </button>
-        <button className="secondary-btn" onClick={handleDownloadCSV}>
-          <FileSpreadsheet size={16} /> Download CSV
-        </button>
-      </div>
+      <section className="ds-card">
+        <div className="ds-card-head">
+          <h2 className="ds-card-title">
+            PDF reports <span className="ds-soon">Coming soon</span>
+          </h2>
+        </div>
+        <div className="ds-page-actions">
+          <Button variant="secondary" icon={FileText} disabled>
+            Generate report
+          </Button>
+          <Button variant="secondary" icon={Download} disabled>
+            Download PDF
+          </Button>
+        </div>
+      </section>
+
+      <EmptyState icon={FileText} title="No reports yet">
+        Generated reports will be listed here once report generation is available.
+      </EmptyState>
     </div>
   );
 }

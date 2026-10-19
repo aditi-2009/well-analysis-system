@@ -105,10 +105,12 @@ class UploadResponse(OrmBaseModel):
             "Located at storage/uploads/{stored_filename}."
         )
     )
-    detected_format: FileFormat = Field(
+    detected_format: str = Field(
         description="Format detected by format_normalizer.py (GeoTIFF, TIFF, etc.)."
     )
-    file_size_bytes: int = Field(ge=0, description="Actual file size on disk, in bytes.")
+    file_size_bytes: int = Field(
+        ge=0, description="Actual file size on disk, in bytes."
+    )
     file_size_mb: float = Field(
         ge=0,
         description="Convenience field: file_size_bytes / 1_000_000.",
