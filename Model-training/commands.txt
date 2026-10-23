@@ -1,0 +1,35 @@
+# For tiles
+python tile_image.py --input "\path\to\main.tiff" --output "D:\ICAR dataset\well-analysis-system\Model-training\tiles"
+# ALTERNATIVE COMMAND With overlap (useful for inference so wells on tile borders aren’t cut): 
+python tile_image.py --input "\path\to\main.tiff" --output "D:\ICAR dataset\well-analysis-system\Model-training\tiles" --overlap 32
+
+
+#For training
+python train.py
+python train.py --mode resume --weights "\path\to\runs\detect\train\weights\last.pt" --data "D:\path\to\data.yaml"
+
+#for continue_training using existing best.pt 
+# Fine-tune from your finished model
+python continue_training.py --mode finetune --weights "runs\detect\train\weights\best.pt" --data "D:\path\to\data.yaml" --epochs 100 --imgsz 320 --batch 8
+# If a run was interrupted, continue it
+python continue_training.py --mode resume --weights "runs\detect\train\weights\last.pt" --data "D:\path\to\data.yaml"
+
+
+#for validation
+python validate_model.py
+
+
+#For testing
+python test_model.py
+
+
+
+#INSTRUCTIONS
+#check and correct the path of files and folders (for both input and output)
+#make sure to check train dataset and varify it with '.yaml' file before start training
+#use resume train command if you pause or cancle training. (use path of last.pt for resume training) 
+#Do validation and testing after training and before stating continue_training
+#check path of previous best.pt for continue_training
+#use newly generatade best.pt after continue_training for validation and and testing
+#best.pt --> stores best training result
+#last.pt --> stores result of last (most recent) epoch
