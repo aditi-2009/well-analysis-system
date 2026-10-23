@@ -28,31 +28,34 @@ Open wells are a main source of irrigation water in semi-arid India, but up-to-d
 - Confidence-coded markers: green (High, light review), amber (Medium, review on imagery), red (Low, field check)
 
 ## Results
+| Model | Precision | Recall | mAP@0.5 | F1 score |
+| --- | --- | --- | --- | --- |
+| Baseline RGB (grid tiles) |   ~84.2%  |  ~87%  | ~87.4%  |   85.6%  |
+| RGB, well-centred crops (best config) |   ~84.4%  | ~84.4% | ~81.2%  |  ~84.4%  |
 
-| Model                                  | Precision | Recall | mAP@0.5 | F1 score |
-| Baseline RGB (grid tiles)              |   ~84.2%  |  ~87%  | ~87.4%  |   85.6%  |
-| RGB, well-centred crops (best config)  |   ~84.4%  | ~84.4% | ~81.2%  |  ~84.4%  |
 
-> The baseline was poor mainly because of label problems (wrong CRS declaration and a metre-vs-degree buffer error), not the detector itself. See [Lessons learned](#lessons-learned).
+> The baseline was poor mainly because of label problems (wrong CRS declaration and a metre-vs-degree buffer error), not the detector itself.
 
 Fill in the TBD values from your test-block evaluation.
 
 ## Tech stack
 
-| Area                | Tools 
-| Deep learning       | Ultralytics YOLOv11 (`yolov11m`), PyTorch 
-| Geospatial          | rasterio, GeoPandas, NumPy, QGIS 
-| Backend             | Python, FastAPI, Uvicorn 
-| Frontend            | React (Vite), React-Leaflet, Esri satellite basemap 
+| Area | Tools |
+| --- | --- |
+| Deep learning | Ultralytics YOLOv11 (`yolov11m`), PyTorch |
+| Geospatial | rasterio, GeoPandas, NumPy, QGIS |
+| Backend | Python, FastAPI, Uvicorn |
+| Frontend | React (Vite), React-Leaflet, Esri satellite basemap |
 
 
 
 ## Data
 
-| Dataset           | Description 
-| Optical mosaic    | Google Earth RGB mosaic, GeoTIFF, EPSG:4326 
-| Well annotations  | Shapefile of 1,258 well points 
-| NDVI rasters      | Monthly NDVI; seasonal difference = mean(Mar–May) − mean(Dec–Feb)   (for study only)
+| Dataset | Description |
+| --- | --- |
+| Optical mosaic | Google Earth RGB mosaic, GeoTIFF, EPSG:4326 |
+| Well annotations | Shapefile of 1,258 well points |
+| NDVI rasters | Monthly NDVI; seasonal difference = mean(Mar–May) − mean(Dec–Feb) |
 
 
 ## How detection works
