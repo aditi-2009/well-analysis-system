@@ -8,7 +8,7 @@ Case study: **Deoli–Wardha, Maharashtra, India**
 
 Open wells are a main source of irrigation water in semi-arid India, but up-to-date, georeferenced well inventories are rare because they rely on slow field surveys or manual digitisation. This project trains a YOLOv8 detector on a single large satellite mosaic plus a point shapefile of known wells, then serves the detector through a web application.
 
-**Pipeline in short**
+Pipeline in short
 
 1. Convert the ECW mosaic to GeoTIFF and fix coordinate systems
 2. Turn well points into bounding boxes and cut well-centred crops plus background crops
