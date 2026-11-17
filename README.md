@@ -2,7 +2,7 @@ Agricultural Well Detection & Analysis System
 
 Automatic detection of open agricultural wells from high-resolution satellite imagery using **YOLOv11**, with results shown on an interactive **WebGIS** map.
 
-Case study: **Deoli–Wardha, Maharashtra, India**
+Case study: *Deoli–Wardha, Maharashtra, India*
 
 ## Overview
 
